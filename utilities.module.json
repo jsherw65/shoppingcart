@@ -1,0 +1,38 @@
+{
+  "routines": [
+    {
+      "name": "formatDate",
+      "inputs": [
+        {
+          "type": "date",
+          "name": "inDate",
+          "required": true
+        }
+      ],
+      "outputs": [
+        {
+          "type": "string",
+          "name": "formattedDate"
+        }
+      ],
+      "steps": [
+        {
+          "text": "Format date",
+          "answers": {
+            "plugin": "Custom:code",
+            "custom-code": "var month = String(input[\"inDate\"].getMonth() + 1).padStart(2, '0');\r\nvar day = String(input[\"inDate\"].getDate()).padStart(2, '0');\r\nvar year = input[\"inDate\"].getFullYear();\r\n\r\nvar date = year + '-' + month + '-' + day;"
+          }
+        },
+        {
+          "text": "Set Module output",
+          "answers": {
+            "plugin": "Program Data:set-module-output",
+            "module-output-values": {
+              "formattedDate": "date"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

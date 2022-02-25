@@ -1,0 +1,385 @@
+{
+  "routines": [
+    {
+      "name": "calculate cart extended cost",
+      "inputs": [
+        {
+          "type": "integer",
+          "name": "cartID",
+          "required": true,
+          "example": ""
+        }
+      ],
+      "outputs": [
+        {
+          "type": "decimal",
+          "name": "totalCost"
+        }
+      ],
+      "isPrivate": true,
+      "steps": [
+        {
+          "text": "Set work variable",
+          "answers": {
+            "plugin": "Program Data:set-work-variable",
+            "work_variable": "totalCost",
+            "value": "0"
+          }
+        },
+        {
+          "text": "Set Module output",
+          "answers": {
+            "plugin": "Program Data:set-module-output",
+            "module-output-values": {
+              "totalCost": "totalCost"
+            }
+          }
+        },
+        {
+          "text": "Get records",
+          "answers": {
+            "plugin": "Database:get-records",
+            "tables": "shopping_cart_detail",
+            "columns": "extendedCost",
+            "criteria": "shoppingCartID = ?",
+            "parameter": "input[\"cartID\"]",
+            "add_order_by": false,
+            "limit": "",
+            "skip": "",
+            "destination": "Work variable",
+            "work_variable": "records"
+          }
+        },
+        {
+          "text": "Process list",
+          "answers": {
+            "plugin": "Program Data:process-list",
+            "list": "records",
+            "work_variable": "record"
+          },
+          "isStructureStart": true
+        },
+        {
+          "text": "Set work variable",
+          "answers": {
+            "plugin": "Program Data:set-work-variable",
+            "work_variable": "totalCost",
+            "value": "totalCost + record[\"extendedCost\"]"
+          }
+        },
+        {
+          "isStructureEnd": true
+        },
+        {
+          "text": "Set Module output",
+          "answers": {
+            "plugin": "Program Data:set-module-output",
+            "module-output-values": {
+              "totalCost": "totalCost"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "summarize cart details",
+      "inputs": [
+        {
+          "type": "integer",
+          "name": "cartID",
+          "required": true
+        }
+      ],
+      "outputs": [
+        {
+          "type": "integer",
+          "name": "numLineItems"
+        },
+        {
+          "type": "decimal",
+          "name": "totalCost"
+        }
+      ],
+      "isDefault": true,
+      "steps": [
+        {
+          "text": "Get number of PO lines",
+          "answers": {
+            "plugin": "Custom:call-internal-routine",
+            "routine-name": "calculate number of po lines",
+            "module-input-parameters": {
+              "cartID": "input[\"cartID\"]"
+            },
+            "module-output-parameters": {
+              "count": {
+                "name": "output[\"numLineItems\"]",
+                "captureType": "values"
+              }
+            }
+          }
+        },
+        {
+          "text": "Get total extended cost",
+          "answers": {
+            "plugin": "Custom:call-internal-routine",
+            "routine-name": "calculate cart extended cost",
+            "module-input-parameters": {
+              "cartID": "input[\"cartID\"]"
+            },
+            "module-output-parameters": {
+              "totalCost": {
+                "name": "output[\"totalCost\"]",
+                "captureType": "values"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "calculate number of po lines",
+      "isPrivate": true,
+      "outputs": [
+        {
+          "type": "integer",
+          "name": "count"
+        }
+      ],
+      "inputs": [
+        {
+          "type": "integer",
+          "name": "cartID",
+          "required": true
+        }
+      ],
+      "steps": [
+        {
+          "text": "Get record counts",
+          "answers": {
+            "plugin": "Database:get-record-count",
+            "tables": "shopping_cart_detail",
+            "criteria": "shoppingCartID = ?",
+            "parameter": "input[\"cartID\"]",
+            "destination": "Module output",
+            "module_output": "output[\"count\"]"
+          }
+        }
+      ]
+    },
+    {
+      "name": "get cart description",
+      "inputs": [
+        {
+          "type": "integer",
+          "name": "id",
+          "required": true
+        }
+      ],
+      "outputs": [
+        {
+          "type": "string",
+          "name": "descr"
+        },
+        {
+          "type": "string",
+          "name": "idDescription"
+        }
+      ],
+      "steps": [
+        {
+          "text": "id passed?",
+          "answers": {
+            "plugin": "Conditions:comparison",
+            "variable": "input[\"id\"]",
+            "type": "truthy",
+            "and-or": ""
+          },
+          "isStructureStart": true
+        },
+        {
+          "text": "Get record",
+          "answers": {
+            "plugin": "Database:get-record",
+            "tables": "shopping_cart_header",
+            "columns": "description",
+            "criteria": "cartID = ?",
+            "parameter": "input[\"id\"]",
+            "destination": "Work variable",
+            "work_variable": "sqlResult"
+          }
+        },
+        {
+          "text": "return cart description",
+          "answers": {
+            "plugin": "Program Data:set-module-output",
+            "module-output-values": {
+              "descr": "sqlResult[\"description\"]"
+            }
+          }
+        },
+        {
+          "text": "return idDescription",
+          "answers": {
+            "plugin": "Program Data:set-module-output",
+            "module-output-values": {
+              "descr": "sqlResult[\"description\"]",
+              "idDescription": "input[\"id\"] + ' - ' + sqlResult[\"description\"]"
+            }
+          }
+        },
+        {
+          "isStructureEnd": true
+        },
+        {
+          "text": "Otherwise",
+          "answers": {
+            "plugin": "Conditions:else"
+          },
+          "isStructureStart": true
+        },
+        {
+          "text": "return blank",
+          "answers": {
+            "plugin": "Program Data:set-module-output",
+            "module-output-values": {
+              "descr": "''",
+              "idDescription": "''"
+            }
+          }
+        },
+        {
+          "isStructureEnd": true
+        }
+      ]
+    },
+    {
+      "name": "get cart detail by shopping cart ID",
+      "outputs": [
+        {
+          "type": "object",
+          "name": "cartDetails",
+          "multipleValues": true
+        }
+      ],
+      "inputs": [
+        {
+          "type": "integer",
+          "name": "shoppingCartID",
+          "example": ""
+        }
+      ],
+      "steps": [
+        {
+          "text": "Set work variable",
+          "answers": {
+            "plugin": "Program Data:set-module-output",
+            "module-output-values": {}
+          }
+        },
+        {
+          "text": "Was cartID passed?",
+          "answers": {
+            "plugin": "Conditions:comparison",
+            "variable": "input[\"shoppingCartID\"]",
+            "type": ">",
+            "value": "0",
+            "and-or": ""
+          },
+          "isStructureStart": true
+        },
+        {
+          "text": "Get details by shoppingCartID",
+          "answers": {
+            "plugin": "Database:get-records",
+            "tables": "shopping_cart_detail",
+            "columns": "id,shoppingCartID,plant,buyerID,buyerName,partNumber,partDescription,supplier,supplierName,shipDate,dueDate,orderQty,unitCost,ovrUnitCost,extendedCost",
+            "criteria": "shoppingCartID = ?",
+            "parameter": "input[\"shoppingCartID\"]",
+            "add_order_by": false,
+            "limit": "",
+            "skip": "",
+            "destination": "Module output",
+            "module_output": "output[\"cartDetails\"]"
+          }
+        },
+        {
+          "isStructureEnd": true
+        },
+        {
+          "text": "Otherwise",
+          "answers": {
+            "plugin": "Conditions:else"
+          },
+          "isStructureStart": true
+        },
+        {
+          "text": "Get all details",
+          "answers": {
+            "plugin": "Database:get-records",
+            "tables": "shopping_cart_detail",
+            "columns": "id,shoppingCartID,plant,buyerID,buyerName,partNumber,partDescription,supplier,supplierName,shipDate,dueDate,orderQty,unitCost,ovrUnitCost,extendedCost",
+            "criteria": "",
+            "add_order_by": false,
+            "limit": "",
+            "skip": "",
+            "destination": "Module output",
+            "module_output": "output[\"cartDetails\"]"
+          }
+        },
+        {
+          "isStructureEnd": true
+        }
+      ]
+    },
+    {
+      "name": "update detail with cart id",
+      "inputs": [
+        {
+          "type": "integer",
+          "name": "detailId",
+          "required": true,
+          "multipleValues": false,
+          "example": ""
+        },
+        {
+          "type": "integer",
+          "name": "cartId",
+          "multipleValues": false,
+          "required": true,
+          "example": ""
+        }
+      ],
+      "outputs": [
+        {
+          "type": "boolean",
+          "name": "status"
+        }
+      ],
+      "steps": [
+        {
+          "text": "Update cart id for queued part",
+          "answers": {
+            "plugin": "Database:update-insert-record",
+            "table": "shopping_cart_detail",
+            "criteria": "id = ?",
+            "parameter": "input[\"detailId\"]",
+            "record_source": "Specify each column value individually",
+            "column-values": {
+              "shoppingCartID": "input[\"cartId\"]"
+            },
+            "results": ""
+          }
+        },
+        {
+          "text": "Set Module output",
+          "answers": {
+            "plugin": "Program Data:set-module-output",
+            "module-output-values": {
+              "status": "success"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "apiFileID": "baa4b272-05eb-4747-bda2-c85466520de2",
+  "routes": [
+    {
+      "apiRouteID": "c20979db-330b-48d1-bb28-3be203be087f",
+      "name": "Get List by number",
+      "enableCors": true,
+      "method": "get",
+      "path": "/shoppinglist/:cartid",
+      "inputs": [
+        {
+          "name": "cartid",
+          "type": "string",
+          "from": "path",
+          "required": true
+        }
+      ],
+      "summary": "Get list by number",
+      "outputs": [
+        {
+          "type": "object",
+          "name": "data",
+          "children": [
+            {
+              "type": "string",
+              "name": "cartID"
+            },
+            {
+              "type": "string",
+              "name": "description"
+            },
+            {
+              "type": "string",
+              "name": "type"
+            },
+            {
+              "type": "string",
+              "name": "plant"
+            },
+            {
+              "type": "string",
+              "name": "buyerCode"
+            },
+            {
+              "type": "date",
+              "name": "needByDate"
+            }
+          ]
+        }
+      ],
+      "subcategory": "",
+      "steps": [
+        {
+          "text": "Get record",
+          "answers": {
+            "plugin": "Database:get-record",
+            "tables": "shopping_cart_header",
+            "columns": "cartID,description,type,plant,buyerCode,needByDate",
+            "criteria": "cartID = ?",
+            "parameter": "input[\"cartid\"]",
+            "destination": "Work variable",
+            "work_variable": "record"
+          }
+        },
+        {
+          "text": "Set work variable",
+          "answers": {
+            "plugin": "Program Data:set-work-variable",
+            "work_variable": "formattedDate",
+            "value": "'0001-01-01'"
+          }
+        },
+        {
+          "text": "Format date",
+          "answers": {
+            "plugin": "Custom:call-external-routine",
+            "module-name": "utilities.module.json",
+            "routine-name": "formatDate",
+            "module-input-parameters": {
+              "inDate": "record[\"needByDate\"]"
+            },
+            "module-output-parameters": {
+              "formattedDate": {
+                "name": "formattedDate",
+                "captureType": "values"
+              }
+            }
+          }
+        },
+        {
+          "text": "Set API output",
+          "answers": {
+            "plugin": "Program Data:set-api-output",
+            "api-output-values": {
+              "data[\"cartID\"]": "record[\"cartID\"]",
+              "data[\"description\"]": "record[\"description\"]",
+              "data[\"type\"]": "record[\"type\"]",
+              "data[\"plant\"]": "record[\"plant\"]",
+              "data[\"buyerCode\"]": "record[\"buyerCode\"]",
+              "data[\"needByDate\"]": "formattedDate"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

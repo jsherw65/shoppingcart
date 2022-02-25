@@ -1,0 +1,4484 @@
+{
+  "text": "",
+  "logic": {
+    "cancel button click": {
+      "steps": [
+        {
+          "text": "On Click Cancel",
+          "answers": {
+            "plugin": "Navigation:exit-program"
+          }
+        }
+      ]
+    },
+    "quantity changed": {
+      "steps": [
+        {
+          "text": "Custom JavaScript",
+          "answers": {
+            "plugin": "Client-side:client-side-code",
+            "code": "var extendedCost = 0;\r\n\r\nif (pui.get(\"ovrUnitCost\") > 0) {\r\n  extendedCost = pui.get(\"ovrUnitCost\") * pui.get(\"orderQty\");\r\n} else {\r\n  extendedCost = pui.get(\"unitCost\") * pui.get(\"orderQty\");\r\n};\r\n\r\npui.set(\"extendedCost\", extendedCost.toFixed(2));"
+          }
+        }
+      ]
+    },
+    "override unit cost change": {
+      "steps": [
+        {
+          "text": "calculate extended cost",
+          "answers": {
+            "plugin": "Client-side:client-side-code",
+            "code": "var extendedCost = 0;\r\n\r\nif (pui.get(\"ovrUnitCost\") > 0) {\r\n  extendedCost = pui.get(\"ovrUnitCost\") * pui.get(\"orderQty\");\r\n} else {\r\n  extendedCost = pui.get(\"unitCost\") * pui.get(\"orderQty\");\r\n};\r\n\r\npui.set(\"extendedCost\",extendedCost.toFixed(2));"
+          }
+        }
+      ]
+    },
+    "ship date changed": {
+      "steps": [
+        {
+          "text": "Set widget property",
+          "answers": {
+            "plugin": "Client-side:set-property",
+            "widget": "shipDate",
+            "preview": "",
+            "property": "error message",
+            "value": "\"Ship Date must be before Due Date\""
+          }
+        }
+      ]
+    },
+    "insert detail row": {
+      "steps": [
+        {
+          "text": "Force recalc of extended cost",
+          "answers": {
+            "plugin": "Navigation:call-routine",
+            "routine-name": "quantity changed",
+            "argument": ""
+          }
+        },
+        {
+          "text": "Insert",
+          "answers": {
+            "plugin": "Database:insert-record",
+            "table": "shopping_cart_detail",
+            "record_source": "From a screen",
+            "screen": "addToCart",
+            "results": ""
+          }
+        }
+      ]
+    },
+    "calc total cost": {
+      "steps": [
+        {
+          "text": "Initialize Total Cost",
+          "answers": {
+            "plugin": "Program Data:set-work-variable",
+            "work_variable": "totalCost",
+            "value": "0"
+          }
+        },
+        {
+          "text": "Custom JavaScript",
+          "answers": {
+            "plugin": "Client-side:client-side-code",
+            "code": "var myGrid = getObj(\"cartDetailGrid\");\r\n\r\nfor (var r=1; r<=myGrid.grid.getRecordCount(); r++) {\r\n  if (!myGrid.grid.isRowFilteredOut(r)) {\r\n    var extendedCost = pui.get(\"extendedCost\");\r\n    totalCost += extendedCost;\r\n  }\r\n}\r\n\r\npui.set(\"totalCost\", totalCost);"
+          }
+        }
+      ]
+    },
+    "cancel button click 2": {
+      "steps": [
+        {
+          "text": "Show previous screen",
+          "answers": {
+            "plugin": "Navigation:show-previous-screen"
+          }
+        }
+      ]
+    },
+    "load add cart screen": {
+      "steps": [
+        {
+          "text": "Get record",
+          "answers": {
+            "plugin": "Database:get-record",
+            "tables": "addPartHeader",
+            "columns": "plant,buyerID,buyerName,supplier,supplierName,partNumber,supplierPartNumber,partDescription,partStatus,unitCost,uom,qoh,shipDate,dueDate,safetyStock,maxQty,minQty,orderQty",
+            "criteria": "",
+            "destination": "Screen",
+            "screen": "addToCart"
+          }
+        },
+        {
+          "text": "Clear grid",
+          "answers": {
+            "plugin": "Grids:clear-grid",
+            "grid": "mrpDemand"
+          }
+        },
+        {
+          "text": "Get records",
+          "answers": {
+            "plugin": "Database:get-records",
+            "tables": "addPartForecast",
+            "columns": "partNumber,mrpWeek,mrpDate,mrpPlannedPOs,mrpPlannedUse,mrpAvailable",
+            "criteria": "",
+            "add_order_by": true,
+            "order_by": "mrpDate",
+            "limit": "",
+            "skip": "",
+            "destination": "Grid",
+            "grid": "mrpDemand"
+          }
+        },
+        {
+          "text": "Show different screen",
+          "answers": {
+            "plugin": "Navigation:show-screen",
+            "screen": "addToCart",
+            "populate": false
+          }
+        }
+      ]
+    },
+    "show create cart": {
+      "steps": [
+        {
+          "text": "Show different screen",
+          "answers": {
+            "plugin": "Navigation:show-screen",
+            "screen": "createCart",
+            "populate": false
+          }
+        }
+      ]
+    },
+    "back button click": {
+      "steps": [
+        {
+          "text": "Show previous screen",
+          "answers": {
+            "plugin": "Navigation:show-previous-screen"
+          }
+        }
+      ]
+    },
+    "return to main screen": {
+      "steps": [
+        {
+          "text": "Show different screen",
+          "answers": {
+            "plugin": "Navigation:show-screen",
+            "screen": "startup",
+            "populate": false
+          }
+        }
+      ]
+    },
+    "insert new cart row": {
+      "steps": [
+        {
+          "text": "Create shopping cart",
+          "answers": {
+            "plugin": "Database:insert-record",
+            "table": "shopping_cart_header",
+            "record_source": "From a screen",
+            "screen": "createCart",
+            "results": "result"
+          }
+        },
+        {
+          "text": "Show previous screen",
+          "answers": {
+            "plugin": "Navigation:show-previous-screen"
+          }
+        }
+      ]
+    },
+    "order now button click": {
+      "steps": [
+        {
+          "text": "Show different screen",
+          "answers": {
+            "plugin": "Navigation:show-screen",
+            "screen": "confirmOrderNow",
+            "populate": false
+          }
+        }
+      ]
+    },
+    "continue button click": {
+      "steps": [
+        {
+          "text": "Show different screen",
+          "answers": {
+            "plugin": "Navigation:show-screen",
+            "screen": "addToCart",
+            "populate": false
+          }
+        }
+      ]
+    },
+    "confirm window - yes button click": {
+      "steps": [
+        {
+          "text": "Show different screen",
+          "answers": {
+            "plugin": "Navigation:show-screen",
+            "screen": "orderSubmitted",
+            "populate": false
+          }
+        }
+      ]
+    },
+    "confirm window - no button click": {
+      "steps": [
+        {
+          "text": "Show previous screen",
+          "answers": {
+            "plugin": "Navigation:show-previous-screen"
+          }
+        }
+      ]
+    },
+    "show cart queue detail": {
+      "steps": [
+        {
+          "text": "Set work variable",
+          "answers": {
+            "plugin": "Program Data:set-work-variable",
+            "work_variable": "cartDescription",
+            "value": "''"
+          }
+        },
+        {
+          "text": "Set global variables",
+          "answers": {
+            "plugin": "Custom:code",
+            "custom-code": "globals[\"cartDetailFilter\"] = '';\r\nglobals[\"cartDetailFilterID\"] = 0;"
+          }
+        },
+        {
+          "text": "Clear grid",
+          "answers": {
+            "plugin": "Grids:clear-grid",
+            "grid": "cartDetailGrid"
+          }
+        },
+        {
+          "text": "Call external routine",
+          "answers": {
+            "plugin": "Custom:call-external-routine",
+            "module-name": "shoppinglists.module.json",
+            "routine-name": "get cart detail by shopping cart ID",
+            "module-input-parameters": {
+              "shoppingCartID": "globals[\"cartDetailFilterID\"]"
+            },
+            "module-output-parameters": {
+              "cartDetails": {
+                "name": "records",
+                "captureType": "lists"
+              }
+            }
+          }
+        },
+        {
+          "text": "Process list",
+          "answers": {
+            "plugin": "Program Data:process-list",
+            "list": "records",
+            "work_variable": "record"
+          },
+          "isStructureStart": true
+        },
+        {
+          "text": "Is assigned to a shopping cart?",
+          "answers": {
+            "plugin": "Conditions:comparison",
+            "variable": "record[\"shoppingCartID\"]",
+            "type": ">",
+            "value": "0",
+            "and-or": ""
+          },
+          "isStructureStart": true
+        },
+        {
+          "text": "Call external routine",
+          "answers": {
+            "plugin": "Custom:call-external-routine",
+            "module-name": "shoppinglists.module.json",
+            "routine-name": "get cart description",
+            "module-input-parameters": {
+              "id": "record[\"shoppingCartID\"]"
+            },
+            "module-output-parameters": {
+              "descr": {
+                "name": "cartDescription",
+                "captureType": "values"
+              }
+            }
+          }
+        },
+        {
+          "text": "Set work variable",
+          "answers": {
+            "plugin": "Program Data:set-work-variable",
+            "work_variable": "cartDescription",
+            "value": "record[\"shoppingCartID\"] + ' - ' + cartDescription"
+          }
+        },
+        {
+          "isStructureEnd": true
+        },
+        {
+          "text": "Otherwise",
+          "answers": {
+            "plugin": "Conditions:else"
+          },
+          "isStructureStart": true
+        },
+        {
+          "text": "Set work variable",
+          "answers": {
+            "plugin": "Program Data:set-work-variable",
+            "work_variable": "cartDescription",
+            "value": "''"
+          }
+        },
+        {
+          "isStructureEnd": true
+        },
+        {
+          "text": "Add grid record",
+          "answers": {
+            "plugin": "Grids:add-grid-record",
+            "grid": "cartDetailGrid",
+            "record_source": "Specify each field value individually",
+            "field-values": {
+              "plant": "record[\"partNumber\"]",
+              "buyerID": "record[\"buyerID\"]",
+              "partNumber": "record[\"partNumber\"]",
+              "partDescription": "record[\"partDescription\"]",
+              "supplier": "record[\"supplier\"]",
+              "shipDate": "record[\"shipDate\"]",
+              "dueDate": "record[\"dueDate\"]",
+              "orderQty": "record[\"orderQty\"]",
+              "id": "record[\"id\"]",
+              "extendedCost": "record[\"extendedCost\"]",
+              "shoppingCart": "cartDescription"
+            },
+            "to_top": false
+          }
+        },
+        {
+          "isStructureEnd": true
+        },
+        {
+          "text": "Show different screen",
+          "answers": {
+            "plugin": "Navigation:show-screen",
+            "screen": "cartQueueDetail",
+            "populate": false
+          }
+        }
+      ]
+    },
+    "show cart queue detail by cartID": {
+      "steps": [
+        {
+          "text": "Set work variable",
+          "answers": {
+            "plugin": "Program Data:set-work-variable",
+            "work_variable": "cartDescription",
+            "value": "''"
+          }
+        },
+        {
+          "text": "Clear grid",
+          "answers": {
+            "plugin": "Grids:clear-grid",
+            "grid": "cartDetailGrid"
+          }
+        },
+        {
+          "text": "Call external routine",
+          "answers": {
+            "plugin": "Custom:call-external-routine",
+            "module-name": "shoppinglists.module.json",
+            "routine-name": "get cart detail by shopping cart ID",
+            "module-input-parameters": {
+              "shoppingCartID": "activeGridRecord[\"cartID\"]"
+            },
+            "module-output-parameters": {
+              "cartDetails": {
+                "name": "records",
+                "captureType": "lists"
+              }
+            }
+          }
+        },
+        {
+          "text": "Process list",
+          "answers": {
+            "plugin": "Program Data:process-list",
+            "list": "records",
+            "work_variable": "record"
+          },
+          "isStructureStart": true
+        },
+        {
+          "text": "Is assigned to a shopping cart?",
+          "answers": {
+            "plugin": "Conditions:comparison",
+            "variable": "record[\"shoppingCartID\"]",
+            "type": ">",
+            "value": "0",
+            "and-or": ""
+          },
+          "isStructureStart": true
+        },
+        {
+          "text": "Call external routine",
+          "answers": {
+            "plugin": "Custom:call-external-routine",
+            "module-name": "shoppinglists.module.json",
+            "routine-name": "get cart description",
+            "module-input-parameters": {
+              "id": "record[\"shoppingCartID\"]"
+            },
+            "module-output-parameters": {
+              "descr": {
+                "name": "cartDescription",
+                "captureType": "values"
+              }
+            }
+          }
+        },
+        {
+          "text": "Set work variable",
+          "answers": {
+            "plugin": "Program Data:set-work-variable",
+            "work_variable": "cartDescription",
+            "value": "record[\"shoppingCartID\"] + ' - ' + cartDescription"
+          }
+        },
+        {
+          "isStructureEnd": true
+        },
+        {
+          "text": "Otherwise",
+          "answers": {
+            "plugin": "Conditions:else"
+          },
+          "isStructureStart": true
+        },
+        {
+          "text": "Set work variable",
+          "answers": {
+            "plugin": "Program Data:set-work-variable",
+            "work_variable": "cartDescription",
+            "value": "''"
+          }
+        },
+        {
+          "isStructureEnd": true
+        },
+        {
+          "text": "Add grid record",
+          "answers": {
+            "plugin": "Grids:add-grid-record",
+            "grid": "cartDetailGrid",
+            "record_source": "Specify each field value individually",
+            "field-values": {
+              "plant": "record[\"partNumber\"]",
+              "buyerID": "record[\"buyerID\"]",
+              "partNumber": "record[\"partNumber\"]",
+              "partDescription": "record[\"partDescription\"]",
+              "supplier": "record[\"supplier\"]",
+              "shipDate": "record[\"shipDate\"]",
+              "dueDate": "record[\"dueDate\"]",
+              "orderQty": "record[\"orderQty\"]",
+              "id": "record[\"id\"]",
+              "extendedCost": "record[\"extendedCost\"]",
+              "shoppingCart": "cartDescription"
+            },
+            "to_top": false
+          }
+        },
+        {
+          "isStructureEnd": true
+        },
+        {
+          "text": "Set cart detail filter info",
+          "answers": {
+            "plugin": "Program Data:set-global-property",
+            "global_property": "globals[\"cartDetailFilter\"]",
+            "value": "activeGridRecord[\"cartID\"] + ' - ' + activeGridRecord[\"description\"]"
+          }
+        },
+        {
+          "text": "Set cart detail filter cart id",
+          "answers": {
+            "plugin": "Program Data:set-global-property",
+            "global_property": "globals[\"cartDetailFilterID\"]",
+            "value": "activeGridRecord[\"cartID\"]"
+          }
+        },
+        {
+          "text": "Show different screen",
+          "answers": {
+            "plugin": "Navigation:show-screen",
+            "screen": "cartQueueDetail",
+            "populate": false
+          }
+        }
+      ]
+    },
+    "start": {
+      "steps": [
+        {
+          "text": "Set global properties",
+          "answers": {
+            "plugin": "Custom:code",
+            "custom-code": "globals[\"plant\"] = \"MB\";\r\nglobals[\"buyerID\"] = \"XMB\";\r\nglobals[\"buyerName\"] = 'REYNOSA NON-CURRENT PARTS';\r\nglobals[\"initialScreen\"] = '';\r\nglobals[\"cartDetailFilter\"] = '';\r\nglobals[\"cartDetailFilterID\"] = 0;\r\nglobals[\"selectedDetailIDs\"] = [];"
+          }
+        }
+      ]
+    },
+    "cart detail advance search clear": {
+      "steps": [
+        {
+          "text": "Set widget value",
+          "answers": {
+            "plugin": "Client-side:set-widget-value",
+            "widget": "shoppingCartID",
+            "preview": "",
+            "value": "0"
+          }
+        },
+        {
+          "text": "Set global property",
+          "answers": {
+            "plugin": "Program Data:set-global-property",
+            "global_property": "globals[\"cartDetailFilterID\"]",
+            "value": "\"\""
+          }
+        },
+        {
+          "text": "Set global property",
+          "answers": {
+            "plugin": "Program Data:set-global-property",
+            "global_property": "globals[\"cartDetailFilter\"]",
+            "value": "\"\""
+          }
+        }
+      ]
+    },
+    "cart detail advance search button click": {
+      "steps": [
+        {
+          "text": "Show different screen",
+          "answers": {
+            "plugin": "Navigation:show-screen",
+            "screen": "cartQueueDetailAdvSearch",
+            "populate": false
+          }
+        }
+      ]
+    },
+    "show cart main": {
+      "steps": [
+        {
+          "text": "Show different screen",
+          "answers": {
+            "plugin": "Navigation:show-screen",
+            "screen": "cartMain",
+            "populate": false
+          }
+        }
+      ]
+    },
+    "initialize shopping cart select": {
+      "steps": [
+        {
+          "text": "Set work variables",
+          "answers": {
+            "plugin": "Custom:code",
+            "custom-code": "var numOfLines = 0;\r\nvar extendedCost = 0;"
+          }
+        },
+        {
+          "text": "Clear grid",
+          "answers": {
+            "plugin": "Grids:clear-grid",
+            "grid": "cartSelGrid"
+          }
+        },
+        {
+          "text": "Get records",
+          "answers": {
+            "plugin": "Database:get-records",
+            "tables": "shopping_cart_header",
+            "columns": "cartID,description,type,plant,buyerCode",
+            "criteria": "",
+            "add_order_by": false,
+            "limit": "",
+            "skip": "",
+            "destination": "Work variable",
+            "work_variable": "records"
+          }
+        },
+        {
+          "text": "Process list",
+          "answers": {
+            "plugin": "Program Data:process-list",
+            "list": "records",
+            "work_variable": "record"
+          },
+          "isStructureStart": true
+        },
+        {
+          "text": "Call external routine",
+          "answers": {
+            "plugin": "Custom:call-external-routine",
+            "module-name": "shoppinglists.module.json",
+            "routine-name": "summarize cart details",
+            "module-input-parameters": {
+              "cartID": "record[\"cartID\"]"
+            },
+            "module-output-parameters": {
+              "numLineItems": {
+                "name": "numOfLines",
+                "captureType": "values"
+              },
+              "totalCost": {
+                "name": "extendedCost",
+                "captureType": "values"
+              }
+            }
+          }
+        },
+        {
+          "text": "Add grid record",
+          "answers": {
+            "plugin": "Grids:add-grid-record",
+            "grid": "cartSelGrid",
+            "record_source": "Specify each field value individually",
+            "field-values": {
+              "description": "record[\"description\"]",
+              "plant": "record[\"plant\"]",
+              "buyerCode": "record[\"buyerCode\"]",
+              "cartID": "record[\"cartID\"]",
+              "numOfPos": "numOfLines",
+              "totalCost": "extendedCost"
+            },
+            "to_top": false
+          }
+        },
+        {
+          "isStructureEnd": true
+        },
+        {
+          "text": "Set screen field(s)",
+          "answers": {
+            "plugin": "Program Data:set-screen-fields",
+            "screen": "cartSel",
+            "source": "Specify each value individually",
+            "screen-values": {
+              "plant": "globals[\"plant\"]",
+              "buyerID": "globals[\"buyerID\"]",
+              "buyerName": "globals[\"buyerName\"]"
+            }
+          }
+        }
+      ]
+    },
+    "add to cart button click": {
+      "steps": [
+        {
+          "text": "Set work variable",
+          "answers": {
+            "plugin": "Program Data:set-work-variable",
+            "work_variable": "selectedCartIds",
+            "value": "[]"
+          }
+        },
+        {
+          "text": "Get selected grid record(s)",
+          "answers": {
+            "plugin": "Grids:get-selected-grid-records",
+            "grid": "cartDetailGrid",
+            "field": "select",
+            "value": "'1'",
+            "get_first_record_only": false,
+            "destination": "Work variable",
+            "work_variable": "selections"
+          }
+        },
+        {
+          "text": "Process list",
+          "answers": {
+            "plugin": "Program Data:process-list",
+            "list": "selections",
+            "work_variable": "selection"
+          },
+          "isStructureStart": true
+        },
+        {
+          "text": "Custom Node.js",
+          "answers": {
+            "plugin": "Custom:code",
+            "custom-code": "selectedCartIds.push(selection[\"id\"]);"
+          }
+        },
+        {
+          "isStructureEnd": true
+        },
+        {
+          "text": "Row selected?",
+          "answers": {
+            "plugin": "Conditions:comparison",
+            "variable": "selectedCartIds.length ",
+            "type": ">",
+            "value": "0",
+            "and-or": ""
+          },
+          "isStructureStart": true
+        },
+        {
+          "text": "Set screen field(s)",
+          "answers": {
+            "plugin": "Program Data:set-screen-fields",
+            "screen": "cartSel",
+            "source": "Specify each value individually",
+            "screen-values": {
+              "selectedIDs": "selectedCartIds"
+            }
+          }
+        },
+        {
+          "text": "Set global property",
+          "answers": {
+            "plugin": "Program Data:set-global-property",
+            "global_property": "globals[\"selectedDetailIDs\"]",
+            "value": "selectedCartIds"
+          }
+        },
+        {
+          "text": "Show different screen",
+          "answers": {
+            "plugin": "Navigation:show-screen",
+            "screen": "cartSel",
+            "populate": false
+          }
+        },
+        {
+          "isStructureEnd": true
+        }
+      ]
+    },
+    "initialize shopping cart": {
+      "steps": [
+        {
+          "text": "Set work variables",
+          "answers": {
+            "plugin": "Custom:code",
+            "custom-code": "var numOfLines = 0;\r\nvar extendedCost = 0;"
+          }
+        },
+        {
+          "text": "Clear grid",
+          "answers": {
+            "plugin": "Grids:clear-grid",
+            "grid": "cartGrid"
+          }
+        },
+        {
+          "text": "Get records",
+          "answers": {
+            "plugin": "Database:get-records",
+            "tables": "shopping_cart_header",
+            "columns": "cartID,description,type,plant,buyerCode",
+            "criteria": "",
+            "add_order_by": false,
+            "limit": "",
+            "skip": "",
+            "destination": "Work variable",
+            "work_variable": "records"
+          }
+        },
+        {
+          "text": "Process list",
+          "answers": {
+            "plugin": "Program Data:process-list",
+            "list": "records",
+            "work_variable": "record"
+          },
+          "isStructureStart": true
+        },
+        {
+          "text": "Call external routine",
+          "answers": {
+            "plugin": "Custom:call-external-routine",
+            "module-name": "shoppinglists.module.json",
+            "routine-name": "summarize cart details",
+            "module-input-parameters": {
+              "cartID": "record[\"cartID\"]"
+            },
+            "module-output-parameters": {
+              "numLineItems": {
+                "name": "numOfLines",
+                "captureType": "values"
+              },
+              "totalCost": {
+                "name": "extendedCost",
+                "captureType": "values"
+              }
+            }
+          }
+        },
+        {
+          "text": "Add grid record",
+          "answers": {
+            "plugin": "Grids:add-grid-record",
+            "grid": "cartGrid",
+            "record_source": "Specify each field value individually",
+            "field-values": {
+              "description": "record[\"description\"]",
+              "plant": "record[\"plant\"]",
+              "buyerCode": "record[\"buyerCode\"]",
+              "cartID": "record[\"cartID\"]",
+              "numOfPos": "numOfLines",
+              "totalCost": "extendedCost"
+            },
+            "to_top": false
+          }
+        },
+        {
+          "isStructureEnd": true
+        },
+        {
+          "text": "Set screen field(s)",
+          "answers": {
+            "plugin": "Program Data:set-screen-fields",
+            "screen": "cartMain",
+            "source": "Specify each value individually",
+            "screen-values": {
+              "plant": "globals[\"plant\"]",
+              "buyerID": "globals[\"buyerID\"]",
+              "buyerName": "globals[\"buyerName\"]"
+            }
+          }
+        }
+      ]
+    },
+    "queued part - create cart": {
+      "steps": [
+        {
+          "text": "Show different screen",
+          "answers": {
+            "plugin": "Navigation:show-screen",
+            "screen": "createCart",
+            "populate": false
+          }
+        }
+      ]
+    },
+    "initialize create cart screen fields": {
+      "steps": [
+        {
+          "text": "Set screen field(s)",
+          "answers": {
+            "plugin": "Program Data:set-screen-fields",
+            "screen": "createCart",
+            "source": "Specify each value individually",
+            "screen-values": {
+              "type": "\"L\"",
+              "user": "\"JSHERWOOD\"",
+              "buyerCode": "globals[\"buyerID\"]",
+              "plant": "globals[\"plant\"]"
+            }
+          }
+        }
+      ]
+    },
+    "cart selection": {
+      "steps": [
+        {
+          "text": "Set work variable",
+          "answers": {
+            "plugin": "Custom:code",
+            "custom-code": "var selectedCartId = 0;\r\nvar status = '';"
+          }
+        },
+        {
+          "text": "Get selected grid record",
+          "answers": {
+            "plugin": "Grids:get-selected-grid-records",
+            "grid": "cartSelGrid",
+            "field": "rowSelected",
+            "get_first_record_only": true,
+            "destination": "Work variable",
+            "work_variable": "selected"
+          }
+        },
+        {
+          "text": "Set work variable",
+          "answers": {
+            "plugin": "Program Data:set-work-variable",
+            "work_variable": "selectedCartId",
+            "value": "selected[\"cartID\"]"
+          }
+        },
+        {
+          "text": "Call external routine",
+          "answers": {
+            "plugin": "Custom:code",
+            "custom-code": "var parms = {};\nparms[\"cartId\"] = selectedCartId;\n\nglobals[\"selectedDetailIDs\"].forEach(updateDetail);\n\nfunction updateDetail(id) {\n\n  parms[\"detailId\"] = id;\n\n  var _success = false;\n  var _error = null;   \n  var _results = null;\n\n  try {\n    var pjsModule = pjs.require(\"shoppinglists.module.json\");\n    _results = pjsModule[\"update detail with cart id\"](parms);\n    _success = true;\n  }\n  catch (err) {\n    _error = err;\n    console.error(err);\n  }\n\n}\n\n//var status = _results ? _results[\"status\"] : null;"
+          }
+        },
+        {
+          "text": "Reload cart queue detail",
+          "answers": {
+            "plugin": "Navigation:call-routine",
+            "routine-name": "show cart queue detail",
+            "argument": ""
+          }
+        }
+      ]
+    },
+    "queued part adv search - screen initialization": {
+      "steps": [
+        {
+          "text": "Set screen field(s)",
+          "answers": {
+            "plugin": "Program Data:set-screen-fields",
+            "screen": "cartQueueDetailAdvSearch",
+            "source": "Specify each value individually",
+            "screen-values": {
+              "shoppingCartID": "globals[\"cartDetailFilterID\"]"
+            }
+          }
+        }
+      ]
+    },
+    "initialization cart queue detail": {
+      "steps": [
+        {
+          "text": "Set screen field(s)",
+          "answers": {
+            "plugin": "Program Data:set-screen-fields",
+            "screen": "cartQueueDetail",
+            "source": "Specify each value individually",
+            "screen-values": {
+              "plant": "globals[\"plant\"]",
+              "buyerID": "globals[\"buyerID\"]",
+              "buyerName": "globals[\"buyerName\"]",
+              "filter": "globals[\"cartDetailFilter\"]"
+            }
+          }
+        },
+        {
+          "text": "Disable buttons",
+          "answers": {
+            "plugin": "Client-side:client-side-code",
+            "code": "applyProperty(\"clearBtn\", \"disabled\", \"true\");\r\napplyProperty(\"addToCartBtn\", \"disabled\", \"true\");\r\napplyProperty(\"orderNowBtn\", \"disabled\", \"true\");"
+          }
+        }
+      ]
+    },
+    "cart detail adv search": {
+      "steps": [
+        {
+          "text": "Set work variable",
+          "answers": {
+            "plugin": "Custom:code",
+            "custom-code": "var cartDescription = '';\r\nvar cartIdDescription = '';"
+          }
+        },
+        {
+          "text": "Clear grid",
+          "answers": {
+            "plugin": "Grids:clear-grid",
+            "grid": "cartDetailGrid"
+          }
+        },
+        {
+          "text": "Call external routine",
+          "answers": {
+            "plugin": "Custom:call-external-routine",
+            "module-name": "shoppinglists.module.json",
+            "routine-name": "get cart detail by shopping cart ID",
+            "module-input-parameters": {
+              "shoppingCartID": "cartQueueDetailAdvSearch[\"shoppingCartID\"]"
+            },
+            "module-output-parameters": {
+              "cartDetails": {
+                "name": "records",
+                "captureType": "lists"
+              }
+            }
+          }
+        },
+        {
+          "text": "Process list",
+          "answers": {
+            "plugin": "Program Data:process-list",
+            "list": "records",
+            "work_variable": "record"
+          },
+          "isStructureStart": true
+        },
+        {
+          "text": "Is assigned to a shopping cart?",
+          "answers": {
+            "plugin": "Conditions:comparison",
+            "variable": "record[\"shoppingCartID\"]",
+            "type": ">",
+            "value": "0",
+            "and-or": ""
+          },
+          "isStructureStart": true
+        },
+        {
+          "text": "Call external routine",
+          "answers": {
+            "plugin": "Custom:call-external-routine",
+            "module-name": "shoppinglists.module.json",
+            "routine-name": "get cart description",
+            "module-input-parameters": {
+              "id": "record[\"shoppingCartID\"]"
+            },
+            "module-output-parameters": {
+              "descr": {
+                "name": "cartDescription",
+                "captureType": "values"
+              }
+            }
+          }
+        },
+        {
+          "text": "Set work variable",
+          "answers": {
+            "plugin": "Program Data:set-work-variable",
+            "work_variable": "cartDescription",
+            "value": "record[\"shoppingCartID\"] + ' - ' + cartDescription"
+          }
+        },
+        {
+          "isStructureEnd": true
+        },
+        {
+          "text": "Otherwise",
+          "answers": {
+            "plugin": "Conditions:else"
+          },
+          "isStructureStart": true
+        },
+        {
+          "text": "Set work variable",
+          "answers": {
+            "plugin": "Program Data:set-work-variable",
+            "work_variable": "cartDescription",
+            "value": "''"
+          }
+        },
+        {
+          "isStructureEnd": true
+        },
+        {
+          "text": "Add grid record",
+          "answers": {
+            "plugin": "Grids:add-grid-record",
+            "grid": "cartDetailGrid",
+            "record_source": "Specify each field value individually",
+            "field-values": {
+              "plant": "record[\"partNumber\"]",
+              "buyerID": "record[\"buyerID\"]",
+              "partNumber": "record[\"partNumber\"]",
+              "partDescription": "record[\"partDescription\"]",
+              "supplier": "record[\"supplier\"]",
+              "shipDate": "record[\"shipDate\"]",
+              "dueDate": "record[\"dueDate\"]",
+              "orderQty": "record[\"orderQty\"]",
+              "id": "record[\"id\"]",
+              "extendedCost": "record[\"extendedCost\"]",
+              "shoppingCart": "cartDescription"
+            },
+            "to_top": false
+          }
+        },
+        {
+          "isStructureEnd": true
+        },
+        {
+          "text": "Call external routine",
+          "answers": {
+            "plugin": "Custom:call-external-routine",
+            "module-name": "shoppinglists.module.json",
+            "routine-name": "get cart description",
+            "module-input-parameters": {
+              "id": "cartQueueDetailAdvSearch[\"shoppingCartID\"]"
+            },
+            "module-output-parameters": {
+              "descr": {
+                "name": "cartDescription",
+                "captureType": "values"
+              },
+              "idDescription": {
+                "name": "cartIdDescription",
+                "captureType": "values"
+              }
+            }
+          }
+        },
+        {
+          "text": "Set cart detail filter info",
+          "answers": {
+            "plugin": "Program Data:set-global-property",
+            "global_property": "globals[\"cartDetailFilter\"]",
+            "value": "cartIdDescription"
+          }
+        },
+        {
+          "text": "Set cart detail filter cart id",
+          "answers": {
+            "plugin": "Program Data:set-global-property",
+            "global_property": "globals[\"cartDetailFilterID\"]",
+            "value": "cartQueueDetailAdvSearch[\"shoppingCartID\"]"
+          }
+        },
+        {
+          "text": "Show previous screen",
+          "answers": {
+            "plugin": "Navigation:show-previous-screen"
+          }
+        }
+      ]
+    }
+  },
+  "start routine": "start",
+  "formats": [
+    {
+      "screen": {
+        "record format name": "startup",
+        "center window": "true",
+        "initial routine": {
+          "routine": "start",
+          "designValue": "start"
+        }
+      },
+      "items": [
+        {
+          "id": "Layout1",
+          "field type": "layout",
+          "left": "190px",
+          "top": "35px",
+          "template": "simple container",
+          "height": "530px",
+          "width": "595px",
+          "center horizontally": "true"
+        },
+        {
+          "id": "navToAddPartBtn",
+          "field type": "styled button",
+          "value": "Go to Add Part ",
+          "left": "calc(50% - 127px)",
+          "top": "140px",
+          "width": "255px",
+          "height": "65px",
+          "button style": "Blue Gel",
+          "color": "#ffffff",
+          "onclick": {
+            "routine": "load add cart screen",
+            "designValue": "load add cart screen"
+          },
+          "font size": "22px",
+          "cursor": "pointer",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "navToShoppingCartBtn",
+          "field type": "styled button",
+          "button style": "Blue Gel",
+          "value": "Go to Shopping Cart",
+          "color": "#ffffff",
+          "left": "calc(50% - 127px)",
+          "top": "250px",
+          "height": "65px",
+          "width": "255px",
+          "onclick": {
+            "routine": "show cart main",
+            "designValue": "show cart main"
+          },
+          "font size": "20px",
+          "cursor": "pointer",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "exitBtn",
+          "field type": "styled button",
+          "value": "Exit",
+          "left": "calc(50% - 127px)",
+          "top": "440px",
+          "width": "255px",
+          "height": "65px",
+          "button style": "Red Gel",
+          "color": "#ffffff",
+          "onclick": {
+            "routine": "cancel button click",
+            "designValue": "cancel button click"
+          },
+          "font size": "20px",
+          "cursor": "e-resize",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "startup_Label",
+          "field type": "output field",
+          "css class": "label",
+          "value": "   Shopping Cart Mockup/Demo",
+          "left": "calc(50% - 253px)",
+          "top": "20px",
+          "width": "505px",
+          "text align": "center",
+          "font size": "30px",
+          "color": "#0033FF",
+          "border bottom style": "solid",
+          "border bottom color": "#0099CC",
+          "border left color": "#0099CC",
+          "border right color": "#0099CC",
+          "border top color": "#0099CC",
+          "border radius": "10px",
+          "border left style": "solid",
+          "border right style": "solid",
+          "border top style": "solid",
+          "border bottom width": "thick",
+          "height": "40px",
+          "layout": "Layout1",
+          "container": "1"
+        }
+      ]
+    },
+    {
+      "screen": {
+        "record format name": "addToCart",
+        "onload": "var extendedCost = 0;\n\nif (pui.get(\"ovrUnitCost\") > 0) {\n  extendedCost = pui.get(\"ovrUnitCost\") * pui.get(\"orderQty\");\n} else {\n  extendedCost = pui.get(\"unitCost\") * pui.get(\"orderQty\");\n};\n\npui.set(\"extendedCost\", extendedCost.toFixed(2));"
+      },
+      "items": [
+        {
+          "id": "Layout1",
+          "field type": "layout",
+          "left": "15px",
+          "top": "10px",
+          "template": "css panel",
+          "header text": "Add Part to Cart Queue",
+          "header theme": "B - Blue",
+          "body theme": "C - Gray",
+          "height": "935px",
+          "width": "1000px",
+          "z index": "8",
+          "locked in place": "true",
+          "center horizontally": "true"
+        },
+        {
+          "id": "Layout2",
+          "field type": "layout",
+          "left": "5px",
+          "top": "5px",
+          "template": "simple container",
+          "height": "130px",
+          "width": "970px",
+          "z index": "1",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "Layout3",
+          "field type": "layout",
+          "left": "10px",
+          "top": "295px",
+          "template": "simple container",
+          "height": "485px",
+          "width": "965px",
+          "z index": "-1",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "Layout4",
+          "field type": "layout",
+          "left": "5px",
+          "top": "140px",
+          "template": "simple container",
+          "height": "140px",
+          "width": "965px",
+          "z index": "0",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "Label12",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Order Qty:",
+          "left": "20px",
+          "top": "65px",
+          "width": "75px",
+          "layout": "Layout4",
+          "container": "1"
+        },
+        {
+          "id": "orderQty",
+          "field type": "textbox",
+          "css class": "input",
+          "value": {
+            "fieldName": "orderQty",
+            "dataLength": "6",
+            "decPos": "0",
+            "numSep": "false",
+            "zeroBalance": "true",
+            "numBlankFill": "false",
+            "zeroFill": "false",
+            "noExtraSpaces": "false",
+            "curSym": "",
+            "dataType": "zoned",
+            "formatting": "Number",
+            "negNum": "999.00",
+            "units": "",
+            "designValue": "[orderQty]"
+          },
+          "left": "110px",
+          "top": "67px",
+          "width": "90px",
+          "required": "true",
+          "text align": "right",
+          "comparison operator": "Greater Than",
+          "comparison value": "0",
+          "onchange": {
+            "routine": "quantity changed",
+            "designValue": "quantity changed"
+          },
+          "layout": "Layout4",
+          "container": "1"
+        },
+        {
+          "id": "Label13",
+          "field type": "output field",
+          "css class": "label",
+          "value": "*",
+          "left": "100px",
+          "top": "65px",
+          "width": "25px",
+          "text align": "left",
+          "color": "#FF0000",
+          "font size": "18px",
+          "layout": "Layout4",
+          "container": "1"
+        },
+        {
+          "id": "Label14",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Ship Date:",
+          "left": "225px",
+          "top": "65px",
+          "width": "75px",
+          "layout": "Layout4",
+          "container": "1"
+        },
+        {
+          "id": "Label13_copy",
+          "field type": "output field",
+          "css class": "label",
+          "value": "*",
+          "color": "#FF0000",
+          "font size": "18px",
+          "text align": "left",
+          "left": "300px",
+          "top": "65px",
+          "width": "25px",
+          "layout": "Layout4",
+          "container": "1"
+        },
+        {
+          "id": "shipDate",
+          "field type": "date field",
+          "css class": "input",
+          "value": {
+            "fieldName": "shipDate",
+            "dataType": "date",
+            "formatting": "Date",
+            "dateFormat": "m/d/Y",
+            "locale": "en_US",
+            "designValue": "[shipDate]"
+          },
+          "left": "315px",
+          "top": "67px",
+          "width": "100px",
+          "onchange": {
+            "routine": "ship date changed",
+            "designValue": "ship date changed"
+          },
+          "show today option": "true",
+          "layout": "Layout4",
+          "container": "1"
+        },
+        {
+          "id": "dueDate",
+          "field type": "date field",
+          "css class": "input",
+          "value": {
+            "fieldName": "dueDate",
+            "dataType": "date",
+            "formatting": "Date",
+            "dateFormat": "m/d/Y",
+            "locale": "en_US",
+            "designValue": "[dueDate]"
+          },
+          "left": "555px",
+          "top": "67px",
+          "width": "100px",
+          "show today option": "true",
+          "layout": "Layout4",
+          "container": "1"
+        },
+        {
+          "id": "Label14_copy",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Due Date:",
+          "left": "465px",
+          "top": "65px",
+          "width": "75px",
+          "layout": "Layout4",
+          "container": "1"
+        },
+        {
+          "id": "Label13_copy2",
+          "field type": "output field",
+          "css class": "label",
+          "value": "*",
+          "color": "#FF0000",
+          "font size": "18px",
+          "text align": "left",
+          "left": "545px",
+          "top": "65px",
+          "width": "25px",
+          "layout": "Layout4",
+          "container": "1"
+        },
+        {
+          "id": "Label1",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Buyer:",
+          "left": "135px",
+          "top": "20px",
+          "width": "50px",
+          "color": "#0099FF",
+          "layout": "Layout2",
+          "container": "1"
+        },
+        {
+          "id": "buyerID",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "buyerID",
+            "refField": "buyerID shopping_cart_detail",
+            "refFieldConnection": "workspace",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "reference",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[buyerID]"
+          },
+          "left": "195px",
+          "top": "20px",
+          "width": "30px",
+          "layout": "Layout2",
+          "container": "1"
+        },
+        {
+          "id": "Label2",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Supplier:",
+          "left": "525px",
+          "top": "20px",
+          "width": "65px",
+          "color": "#0099FF",
+          "layout": "Layout2",
+          "container": "1"
+        },
+        {
+          "id": "OutputField2",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "supplier",
+            "dataLength": "10",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "varchar",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[supplier]"
+          },
+          "left": "595px",
+          "top": "21px",
+          "width": "80px",
+          "layout": "Layout2",
+          "container": "1"
+        },
+        {
+          "id": "Label3",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Plant:",
+          "left": "30px",
+          "top": "20px",
+          "width": "40px",
+          "color": "#0099FF",
+          "layout": "Layout2",
+          "container": "1"
+        },
+        {
+          "id": "OutputField3",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "plant",
+            "dataLength": "2",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "varchar",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[plant]"
+          },
+          "left": "80px",
+          "top": "20px",
+          "width": "25px",
+          "layout": "Layout2",
+          "container": "1"
+        },
+        {
+          "id": "Label5",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Part Number:",
+          "left": "55px",
+          "top": "45px",
+          "width": "95px",
+          "color": "#0099FF",
+          "layout": "Layout2",
+          "container": "1"
+        },
+        {
+          "id": "OutputField4",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "partNumber",
+            "dataLength": "25",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "varchar",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[partNumber]"
+          },
+          "left": "160px",
+          "top": "45px",
+          "width": "190px",
+          "layout": "Layout2",
+          "container": "1"
+        },
+        {
+          "id": "Label4",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Part Description:",
+          "left": "0px",
+          "top": "70px",
+          "width": "150px",
+          "color": "#0099FF",
+          "layout": "Layout2",
+          "container": "1"
+        },
+        {
+          "id": "Label6",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Supplier Part Number:",
+          "left": "430px",
+          "top": "45px",
+          "width": "160px",
+          "color": "#0099FF",
+          "layout": "Layout2",
+          "container": "1"
+        },
+        {
+          "id": "Label7",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Part Status:",
+          "left": "505px",
+          "top": "70px",
+          "width": "85px",
+          "color": "#0099FF",
+          "layout": "Layout2",
+          "container": "1"
+        },
+        {
+          "id": "OutputField7",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "partStatus",
+            "dataLength": "1",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "varchar",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[partStatus]"
+          },
+          "left": "595px",
+          "top": "70px",
+          "width": "25px",
+          "layout": "Layout2",
+          "container": "1"
+        },
+        {
+          "id": "Label8",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Unit Cost:",
+          "left": "645px",
+          "top": "70px",
+          "width": "80px",
+          "color": "#0099FF",
+          "layout": "Layout2",
+          "container": "1"
+        },
+        {
+          "id": "unitCost",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "unitCost",
+            "dataLength": "9",
+            "decPos": "4",
+            "numSep": "false",
+            "zeroBalance": "true",
+            "numBlankFill": "false",
+            "zeroFill": "false",
+            "noExtraSpaces": "false",
+            "curSym": "",
+            "dataType": "zoned",
+            "formatting": "Number",
+            "negNum": "999.00",
+            "units": "",
+            "designValue": "[unitCost]"
+          },
+          "left": "735px",
+          "top": "70px",
+          "width": "95px",
+          "layout": "Layout2",
+          "container": "1"
+        },
+        {
+          "id": "Label9",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Current Onhand:",
+          "left": "15px",
+          "top": "5px",
+          "width": "150px",
+          "color": "#3366FF",
+          "font size": "18px",
+          "layout": "Layout4",
+          "container": "1"
+        },
+        {
+          "id": "OutputField9",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "qoh",
+            "dataLength": "6",
+            "decPos": "0",
+            "numSep": "false",
+            "zeroBalance": "true",
+            "numBlankFill": "false",
+            "zeroFill": "false",
+            "noExtraSpaces": "false",
+            "curSym": "",
+            "dataType": "zoned",
+            "formatting": "Number",
+            "negNum": "999.00",
+            "units": "",
+            "designValue": "[qoh]"
+          },
+          "left": "175px",
+          "top": "5px",
+          "width": "50px",
+          "text align": "left",
+          "font size": "18px",
+          "layout": "Layout4",
+          "container": "1"
+        },
+        {
+          "id": "Label10",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Safety Stock:",
+          "left": "500px",
+          "top": "95px",
+          "width": "90px",
+          "color": "#0099FF",
+          "layout": "Layout2",
+          "container": "1"
+        },
+        {
+          "id": "OutputField9_copy",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "safetyStock",
+            "dataLength": "6",
+            "decPos": "0",
+            "numSep": "false",
+            "zeroBalance": "true",
+            "numBlankFill": "false",
+            "zeroFill": "false",
+            "noExtraSpaces": "false",
+            "curSym": "",
+            "dataType": "zoned",
+            "formatting": "Number",
+            "negNum": "999.00",
+            "units": "",
+            "designValue": "[safetyStock]"
+          },
+          "text align": "left",
+          "left": "595px",
+          "top": "95px",
+          "width": "50px",
+          "layout": "Layout2",
+          "container": "1"
+        },
+        {
+          "id": "Label10_copy",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Max Qty:",
+          "left": "660px",
+          "top": "95px",
+          "width": "65px",
+          "color": "#0099FF",
+          "layout": "Layout2",
+          "container": "1"
+        },
+        {
+          "id": "OutputField9_copy2",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "maxQty",
+            "dataLength": "6",
+            "decPos": "0",
+            "numSep": "false",
+            "zeroBalance": "true",
+            "numBlankFill": "false",
+            "zeroFill": "false",
+            "noExtraSpaces": "false",
+            "curSym": "",
+            "dataType": "zoned",
+            "formatting": "Number",
+            "negNum": "999.00",
+            "units": "",
+            "designValue": "[maxQty]"
+          },
+          "text align": "left",
+          "left": "735px",
+          "top": "95px",
+          "width": "50px",
+          "layout": "Layout2",
+          "container": "1"
+        },
+        {
+          "id": "Label11",
+          "field type": "output field",
+          "css class": "label",
+          "value": "UOM:",
+          "left": "855px",
+          "top": "70px",
+          "width": "45px",
+          "color": "#0099FF",
+          "layout": "Layout2",
+          "container": "1"
+        },
+        {
+          "id": "OutputField10",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "uom",
+            "dataLength": "3",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "varchar",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[uom]"
+          },
+          "left": "910px",
+          "top": "70px",
+          "layout": "Layout2",
+          "container": "1"
+        },
+        {
+          "id": "Label10_copy2",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Min Ord Qty:",
+          "left": "805px",
+          "top": "95px",
+          "width": "95px",
+          "color": "#0099FF",
+          "layout": "Layout2",
+          "container": "1"
+        },
+        {
+          "id": "OutputField9_copy3",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "minQty",
+            "dataLength": "6",
+            "decPos": "0",
+            "numSep": "false",
+            "zeroBalance": "true",
+            "numBlankFill": "false",
+            "zeroFill": "false",
+            "noExtraSpaces": "false",
+            "curSym": "",
+            "dataType": "zoned",
+            "formatting": "Number",
+            "negNum": "999.00",
+            "units": "",
+            "designValue": "[minQty]"
+          },
+          "text align": "left",
+          "left": "910px",
+          "top": "95px",
+          "width": "50px",
+          "layout": "Layout2",
+          "container": "1"
+        },
+        {
+          "id": "addBtn",
+          "field type": "graphic button",
+          "value": "Add",
+          "left": "20px",
+          "top": "105px",
+          "width": "100px",
+          "icon position": "left",
+          "image source": "/profoundui/proddata/images/icons/add.png",
+          "color": "#70b859",
+          "font weight": "bold",
+          "onclick": {
+            "routine": "insert detail row",
+            "designValue": "insert detail row"
+          },
+          "layout": "Layout4",
+          "container": "1"
+        },
+        {
+          "id": "cancelBtn",
+          "field type": "graphic button",
+          "value": "Cancel",
+          "left": "140px",
+          "top": "105px",
+          "width": "100px",
+          "icon position": "left",
+          "image source": "/profoundui/proddata/images/icons/cancel.png",
+          "color": "#b11919",
+          "font weight": "bold",
+          "bypass validation": "true",
+          "onclick": {
+            "routine": "return to main screen",
+            "designValue": "return to main screen"
+          },
+          "layout": "Layout4",
+          "container": "1"
+        },
+        {
+          "id": "Grid1",
+          "field type": "grid",
+          "css class": "crystal-grid",
+          "left": "90px",
+          "top": "45px",
+          "number of rows": "16",
+          "number of columns": "5",
+          "column widths": "150,150,151,133,148",
+          "column headings": "MRP Week ,Week Date,Planned POs,Planned Usage,Available",
+          "header height": "26",
+          "row height": "26",
+          "height": "416px",
+          "width": "733px",
+          "record format name": "mrpDemand",
+          "find option": "true",
+          "order by": "MRPDATE",
+          "text align": "center, center, center, center, center",
+          "layout": "Layout3",
+          "container": "1"
+        },
+        {
+          "id": "Label15",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Forecast Demand (MRP 13-week)",
+          "left": "-5px",
+          "top": "10px",
+          "width": "955px",
+          "height": "20px",
+          "text align": "left",
+          "background color": "#0099CC",
+          "color": "#FFFFFF",
+          "border top color": "#000000",
+          "border top width": "2px",
+          "layout": "Layout3",
+          "container": "1"
+        },
+        {
+          "id": "OutputField11",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "buyerName",
+            "dataLength": "35",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "varchar",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[buyerName]"
+          },
+          "left": "240px",
+          "top": "20px",
+          "width": "235px",
+          "layout": "Layout2",
+          "container": "1"
+        },
+        {
+          "id": "OutputField12",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "supplierName",
+            "dataLength": "30",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "varchar",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[supplierName]"
+          },
+          "left": "700px",
+          "top": "20px",
+          "width": "255px",
+          "layout": "Layout2",
+          "container": "1"
+        },
+        {
+          "id": "ovrUnitCost",
+          "field type": "textbox",
+          "css class": "input",
+          "value": {
+            "fieldName": "ovrUnitCost",
+            "refField": "ovrUnitCost shopping_cart_detail",
+            "refFieldConnection": "workspace",
+            "numSep": "false",
+            "zeroBalance": "true",
+            "numBlankFill": "false",
+            "zeroFill": "false",
+            "noExtraSpaces": "false",
+            "curSym": "",
+            "dataType": "reference",
+            "formatting": "Number",
+            "negNum": "999.00",
+            "units": "",
+            "designValue": "[ovrUnitCost]"
+          },
+          "left": "615px",
+          "top": "94px",
+          "width": "95px",
+          "text align": "right",
+          "onchange": {
+            "routine": "override unit cost change",
+            "designValue": "override unit cost change"
+          },
+          "layout": "Layout4",
+          "container": "1"
+        },
+        {
+          "id": "Label12_copy",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Override Unit Cost:",
+          "left": "465px",
+          "top": "92px",
+          "width": "140px",
+          "layout": "Layout4",
+          "container": "1"
+        },
+        {
+          "id": "OutputField16",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "supplierPartNumber",
+            "dataLength": "25",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "varchar",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[supplierPartNumber]"
+          },
+          "left": "595px",
+          "top": "46px",
+          "width": "145px",
+          "layout": "Layout2",
+          "container": "1"
+        },
+        {
+          "id": "OutputField5",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "partDescription",
+            "dataLength": "45",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "varchar",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[partDescription]"
+          },
+          "left": "160px",
+          "top": "70px",
+          "width": "295px",
+          "layout": "Layout2",
+          "container": "1"
+        },
+        {
+          "id": "Label16",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Extended Cost:",
+          "left": "455px",
+          "top": "112px",
+          "width": "150px",
+          "layout": "Layout4",
+          "container": "1"
+        },
+        {
+          "id": "extendedCost",
+          "field type": "textbox",
+          "value": {
+            "fieldName": "extendedCost",
+            "refField": "extendedCost shopping_cart_detail",
+            "refFieldConnection": "workspace",
+            "numSep": "true",
+            "zeroBalance": "true",
+            "numBlankFill": "false",
+            "zeroFill": "false",
+            "noExtraSpaces": "false",
+            "curSym": "",
+            "dataType": "reference",
+            "formatting": "Number",
+            "negNum": "999.00",
+            "units": "",
+            "designValue": "[extendedCost]"
+          },
+          "left": "615px",
+          "top": "112px",
+          "width": "95px",
+          "text align": "right",
+          "disabled": "true",
+          "font weight": "bold",
+          "layout": "Layout4",
+          "container": "1"
+        },
+        {
+          "id": "orderNowBtn",
+          "field type": "graphic button",
+          "value": "Order Now",
+          "color": "#70b859",
+          "font weight": "bold",
+          "icon position": "left",
+          "image source": "/profoundui/proddata/images/icons/add.png",
+          "left": "850px",
+          "top": "102px",
+          "width": "100px",
+          "onclick": {
+            "routine": "order now button click",
+            "designValue": "order now button click"
+          },
+          "layout": "Layout4",
+          "container": "1"
+        },
+        {
+          "id": "shoppingCartIcon",
+          "field type": "icon",
+          "color": "#0033FF",
+          "icon": "material:shopping_cart",
+          "left": "880px",
+          "top": "5px",
+          "height": "50px",
+          "width": "55px",
+          "onclick": {
+            "routine": "show cart queue detail",
+            "designValue": "show cart queue detail"
+          },
+          "cursor": "pointer",
+          "layout": "Layout4",
+          "container": "1"
+        },
+        {
+          "id": "shoppingCartID",
+          "field type": "select box",
+          "value": {
+            "fieldName": "shoppingCartID",
+            "refField": "shoppingCartID shopping_cart_detail",
+            "refFieldConnection": "workspace",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "reference",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[shoppingCartID]"
+          },
+          "left": "550px",
+          "top": "5px",
+          "choices": "Option 1,Option 2",
+          "width": "300px",
+          "database connection": "workspace",
+          "choices database file": "shopping_cart_header",
+          "blank option": "true",
+          "choice values field": "cartID",
+          "choice options field": "description",
+          "order by": "cartID",
+          "layout": "Layout4",
+          "container": "1"
+        },
+        {
+          "id": "Label17",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Shopping Cart:",
+          "left": "385px",
+          "top": "5px",
+          "width": "150px",
+          "color": "#0099FF",
+          "layout": "Layout4",
+          "container": "1"
+        },
+        {
+          "id": "OutputField13",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "mrpWeek",
+            "dataLength": "50",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "varchar",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[mrpWeek]"
+          },
+          "left": "25px",
+          "top": "5px",
+          "width": "95px",
+          "grid": "Grid1",
+          "column": "0"
+        },
+        {
+          "id": "OutputField14",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "mrpDate",
+            "refField": "mrpDate addPartForecast",
+            "refFieldConnection": "workspace",
+            "dataType": "reference",
+            "formatting": "Date",
+            "dateFormat": "m/d/Y",
+            "locale": "en_US",
+            "designValue": "[mrpDate]"
+          },
+          "left": "35px",
+          "top": "5px",
+          "width": "100px",
+          "text align": "center",
+          "grid": "Grid1",
+          "column": "1"
+        },
+        {
+          "id": "OutputField15",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "mrpPlannedPOs",
+            "dataLength": "10",
+            "decPos": "2",
+            "numSep": "false",
+            "zeroBalance": "false",
+            "numBlankFill": "true",
+            "zeroFill": "false",
+            "noExtraSpaces": "false",
+            "curSym": "",
+            "dataType": "zoned",
+            "formatting": "Number",
+            "negNum": "999.00",
+            "units": "",
+            "designValue": "[mrpPlannedPOs]"
+          },
+          "left": "35px",
+          "top": "5px",
+          "text align": "right",
+          "width": "100px",
+          "grid": "Grid1",
+          "column": "2"
+        },
+        {
+          "id": "OutputField15_copy",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "mrpPlannedUse",
+            "dataLength": "10",
+            "decPos": "2",
+            "numSep": "false",
+            "zeroBalance": "false",
+            "numBlankFill": "true",
+            "zeroFill": "false",
+            "noExtraSpaces": "false",
+            "curSym": "",
+            "dataType": "zoned",
+            "formatting": "Number",
+            "negNum": "999.00",
+            "units": "",
+            "designValue": "[mrpPlannedUse]"
+          },
+          "text align": "right",
+          "left": "35px",
+          "top": "5px",
+          "grid": "Grid1",
+          "column": "3"
+        },
+        {
+          "id": "OutputField15_copy2",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "mrpAvailable",
+            "dataLength": "10",
+            "decPos": "2",
+            "numSep": "false",
+            "zeroBalance": "false",
+            "numBlankFill": "false",
+            "zeroFill": "false",
+            "noExtraSpaces": "false",
+            "curSym": "",
+            "dataType": "zoned",
+            "formatting": "Number",
+            "negNum": "999.00",
+            "units": "",
+            "designValue": "[mrpAvailable]"
+          },
+          "text align": "right",
+          "left": "40px",
+          "top": "5px",
+          "grid": "Grid1",
+          "column": "4"
+        }
+      ]
+    },
+    {
+      "screen": {
+        "record format name": "confirmOrderNow",
+        "show as window": "true"
+      },
+      "items": [
+        {
+          "id": "confirmWindow",
+          "field type": "layout",
+          "left": "215px",
+          "top": "40px",
+          "template": "css panel",
+          "header text": "Confirm",
+          "header theme": "B - Blue",
+          "body theme": "C - Gray",
+          "height": "290px",
+          "width": "605px",
+          "z index": "8",
+          "center horizontally": "true",
+          "center vertically": "true"
+        },
+        {
+          "id": "Label1a",
+          "field type": "output field",
+          "css class": "label",
+          "value": "You have chosen to 'Order Now'",
+          "left": "145px",
+          "top": "40px",
+          "width": "315px",
+          "font size": "20px",
+          "layout": "confirmWindow",
+          "container": "1"
+        },
+        {
+          "id": "Label2a",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Continue?",
+          "left": "220px",
+          "top": "105px",
+          "width": "150px",
+          "text align": "center",
+          "layout": "confirmWindow",
+          "container": "1"
+        },
+        {
+          "id": "yesBtn",
+          "field type": "css button",
+          "value": "Yes",
+          "left": "170px",
+          "top": "165px",
+          "width": "90px",
+          "theme": "F - Green",
+          "small button": "true",
+          "icon position": "left",
+          "icon": "check",
+          "onclick": {
+            "routine": "confirm window - yes button click",
+            "designValue": "confirm window - yes button click"
+          },
+          "layout": "confirmWindow",
+          "container": "1"
+        },
+        {
+          "id": "noBtn",
+          "field type": "css button",
+          "value": "No",
+          "left": "325px",
+          "top": "165px",
+          "width": "90px",
+          "theme": "G - Red",
+          "small button": "true",
+          "icon position": "left",
+          "icon": "delete",
+          "onclick": {
+            "routine": "confirm window - no button click",
+            "designValue": "confirm window - no button click"
+          },
+          "layout": "confirmWindow",
+          "container": "1"
+        }
+      ]
+    },
+    {
+      "screen": {
+        "record format name": "orderSubmitted",
+        "show as window": "true"
+      },
+      "items": [
+        {
+          "id": "Layout1",
+          "field type": "layout",
+          "left": "245px",
+          "top": "55px",
+          "template": "css panel",
+          "header text": "Confirm",
+          "header theme": "B - Blue",
+          "body theme": "C - Gray",
+          "height": "265px",
+          "width": "605px",
+          "z index": "8",
+          "center horizontally": "true",
+          "center vertically": "true"
+        },
+        {
+          "id": "Label1b",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Order Submitted",
+          "left": "145px",
+          "top": "40px",
+          "width": "315px",
+          "font size": "20px",
+          "text align": "center",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "continueBtn",
+          "field type": "css button",
+          "value": "CONTINUE",
+          "left": "235px",
+          "top": "125px",
+          "width": "135px",
+          "theme": "F - Green",
+          "small button": "true",
+          "onclick": {
+            "routine": "continue button click",
+            "designValue": "continue button click"
+          },
+          "layout": "Layout1",
+          "container": "1"
+        }
+      ]
+    },
+    {
+      "screen": {
+        "record format name": "cartQueueDetail",
+        "initial routine": {
+          "routine": "initialization cart queue detail",
+          "designValue": "initialization cart queue detail"
+        }
+      },
+      "items": [
+        {
+          "id": "Layout1",
+          "field type": "layout",
+          "left": "15px",
+          "top": "0px",
+          "template": "css panel",
+          "header text": "Shopping Cart Queued Parts",
+          "header theme": "B - Blue",
+          "body theme": "C - Gray",
+          "height": "870px",
+          "width": "1805px",
+          "z index": "8",
+          "locked in place": "true",
+          "center horizontally": "true"
+        },
+        {
+          "id": "cartDetailGrid",
+          "field type": "grid",
+          "css class": "crystal-grid",
+          "left": "15px",
+          "top": "190px",
+          "number of rows": "20",
+          "number of columns": "12",
+          "column widths": "107,75,215,85,151,179,302,90,75,135,109,117",
+          "column headings": "Action,Selection,Cart ID - Description,Plant,Buyer,Part Number,Part Description,Order Qty,Extended Cost,Ship Date,Due Date,Supplier",
+          "header height": "26",
+          "row height": "26",
+          "height": "520px",
+          "width": "1641px",
+          "record format name": "cartDetailGrid",
+          "resizable columns": "true",
+          "persist state": "true",
+          "find option": "true",
+          "filter option": "true",
+          "reset option": "true",
+          "export option": "true",
+          "export only visible columns": "true",
+          "xlsx export": "true",
+          "export with headings": "true",
+          "export file name": "shopping cart queued parts",
+          "show page number": "true",
+          "show paging controls": "true",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "Label1",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Total Cost:",
+          "left": "870px",
+          "top": "740px",
+          "width": "150px",
+          "visibility": "hidden",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "totalCost",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "totalCost",
+            "dataLength": "9",
+            "decPos": "2",
+            "numSep": "false",
+            "zeroBalance": "false",
+            "numBlankFill": "false",
+            "zeroFill": "false",
+            "noExtraSpaces": "false",
+            "curSym": "$",
+            "dataType": "zoned",
+            "formatting": "Number",
+            "negNum": "-999.00",
+            "units": "",
+            "designValue": "[totalCost]"
+          },
+          "left": "1045px",
+          "top": "740px",
+          "text align": "right",
+          "width": "112px",
+          "visibility": "hidden",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "crtCartBtn",
+          "field type": "graphic button",
+          "value": "Create Cart",
+          "color": "#70b859",
+          "font weight": "bold",
+          "icon position": "left",
+          "image source": "/profoundui/proddata/images/icons/add.png",
+          "left": "20px",
+          "top": "140px",
+          "width": "135px",
+          "height": "30px",
+          "onclick": {
+            "routine": "queued part - create cart",
+            "designValue": "queued part - create cart"
+          },
+          "response": {
+            "fieldName": "crtCartBtn",
+            "customTrue": "",
+            "customFalse": "",
+            "dataType": "indicator",
+            "formatting": "Indicator",
+            "indFormat": "1 / 0"
+          },
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "addToCartBtn",
+          "field type": "graphic button",
+          "value": "Add To Cart",
+          "color": "#70b859",
+          "font weight": "bold",
+          "icon position": "left",
+          "image source": "/profoundui/proddata/images/icons/add.png",
+          "left": "555px",
+          "top": "140px",
+          "width": "135px",
+          "onclick": {
+            "routine": "add to cart button click",
+            "designValue": "add to cart button click"
+          },
+          "height": "30px",
+          "response": {
+            "fieldName": "addToCartBtn",
+            "customTrue": "",
+            "customFalse": "",
+            "dataType": "indicator",
+            "formatting": "Indicator",
+            "indFormat": "1 / 0"
+          },
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "selAllBtn",
+          "field type": "graphic button",
+          "value": "Select All",
+          "color": "#70b859",
+          "font weight": "bold",
+          "icon position": "left",
+          "image source": "/profoundui/proddata/images/icons/add.png",
+          "left": "200px",
+          "top": "140px",
+          "width": "135px",
+          "height": "30px",
+          "response": {
+            "fieldName": "selAllBtn",
+            "customTrue": "",
+            "customFalse": "",
+            "dataType": "indicator",
+            "formatting": "Indicator",
+            "indFormat": "1 / 0"
+          },
+          "onclick": "var gridID = getObj(\"cartDetailGrid\");\n \nfor (var r=1; r<=gridID.grid.getRecordCount(); r++) {\n  if (!gridID.grid.isRowFilteredOut(r)) {\n    gridID.grid.setDataValue(r, \"select\", \"1\");\n  }\n};\n\napplyProperty(\"clearBtn\", \"disabled\", \"false\");\napplyProperty(\"addToCartBtn\", \"disabled\", \"false\");\napplyProperty(\"orderNowBtn\", \"disabled\", \"false\");\n   ",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "advSearchBtn",
+          "field type": "css button",
+          "value": "Advance Search",
+          "left": "170px",
+          "top": "65px",
+          "width": "180px",
+          "theme": "B - Blue",
+          "height": "35px",
+          "onclick": {
+            "routine": "cart detail advance search button click",
+            "designValue": "cart detail advance search button click"
+          },
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "shoppingCartIcon",
+          "field type": "icon",
+          "left": "1575px",
+          "top": "10px",
+          "icon": "material:shopping_cart",
+          "width": "55px",
+          "height": "50px",
+          "color": "#0033FF",
+          "onclick": {
+            "routine": "show cart main",
+            "designValue": "show cart main"
+          },
+          "cursor": "pointer",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "backBtn",
+          "field type": "css button",
+          "value": "Back",
+          "left": "20px",
+          "top": "65px",
+          "width": "125px",
+          "theme": "B - Blue",
+          "icon position": "left",
+          "icon": "back",
+          "height": "35px",
+          "onclick": {
+            "routine": "back button click",
+            "designValue": "back button click"
+          },
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "Label3",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Plant:",
+          "color": "#0099FF",
+          "left": "30px",
+          "top": "20px",
+          "width": "40px",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "plant",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "plant",
+            "dataLength": "2",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "varchar",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[plant]"
+          },
+          "left": "85px",
+          "top": "20px",
+          "width": "25px",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "Label1_copy",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Buyer:",
+          "color": "#0099FF",
+          "left": "135px",
+          "top": "20px",
+          "width": "50px",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "buyerCode",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "buyerID",
+            "refField": "buyerID shopping_cart_detail",
+            "refFieldConnection": "workspace",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "reference",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[buyerID]"
+          },
+          "left": "200px",
+          "top": "20px",
+          "width": "30px",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "buyerCodeName",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "buyerName",
+            "dataLength": "35",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "varchar",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[buyerName]"
+          },
+          "left": "240px",
+          "top": "20px",
+          "width": "235px",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "filter",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "filter",
+            "dataLength": "100",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "varchar",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[filter]"
+          },
+          "left": "685px",
+          "top": "20px",
+          "width": "765px",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "filterLabel",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Filter:",
+          "left": "520px",
+          "top": "20px",
+          "width": "150px",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "Label1_copy2",
+          "field type": "output field",
+          "css class": "label",
+          "value": "To assign to a cart, select item(s) and click Add to Cart button.",
+          "font style": "italic",
+          "text align": "left",
+          "left": "20px",
+          "top": "740px",
+          "width": "435px",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "orderNowBtn",
+          "field type": "graphic button",
+          "value": "Order",
+          "color": "#70b859",
+          "font weight": "bold",
+          "icon position": "left",
+          "image source": "/profoundui/proddata/images/icons/add.png",
+          "left": "730px",
+          "top": "140px",
+          "height": "30px",
+          "width": "135px",
+          "onclick": {
+            "routine": "order now button click",
+            "designValue": "order now button click"
+          },
+          "response": {
+            "fieldName": "orderNowBtn",
+            "customTrue": "",
+            "customFalse": "",
+            "dataType": "indicator",
+            "formatting": "Indicator",
+            "indFormat": "1 / 0"
+          },
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "Label1_copy3",
+          "field type": "output field",
+          "css class": "label",
+          "value": "To create purchase order(s), select item(s) and click Order button.",
+          "font style": "italic",
+          "text align": "left",
+          "left": "20px",
+          "top": "765px",
+          "width": "435px",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "clearBtn",
+          "field type": "graphic button",
+          "value": "Clear",
+          "color": "#70b859",
+          "font weight": "bold",
+          "icon position": "left",
+          "image source": "/profoundui/proddata/images/icons/add.png",
+          "left": "375px",
+          "top": "140px",
+          "height": "30px",
+          "width": "135px",
+          "response": {
+            "fieldName": "clearBtn",
+            "customTrue": "",
+            "customFalse": "",
+            "dataType": "indicator",
+            "formatting": "Indicator",
+            "indFormat": "1 / 0"
+          },
+          "onclick": "var gridID = getObj(\"cartDetailGrid\");\n \nfor (var r=1; r<=gridID.grid.getRecordCount(); r++) {\n  gridID.grid.setDataValue(r, \"select\", \"0\");\n};\n\napplyProperty(\"clearBtn\", \"disabled\", \"true\");\napplyProperty(\"addToCartBtn\", \"disabled\", \"true\");\napplyProperty(\"orderNowBtn\", \"disabled\", \"true\");\n   ",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "status",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "status",
+            "dataLength": "25",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "varchar",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[status]"
+          },
+          "left": "615px",
+          "top": "75px",
+          "visibility": "hidden",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "OutputField1",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "plant",
+            "designValue": "[plant]",
+            "refField": "plant shopping_cart_detail",
+            "dataType": "reference",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "formatting": "Text",
+            "textTransform": "none"
+          },
+          "left": "10px",
+          "top": "5px",
+          "css class 2": "blueprint-defaults",
+          "css class 3": "blueprint-output-field",
+          "grid": "cartDetailGrid",
+          "column": "3"
+        },
+        {
+          "id": "OutputField2",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "buyerID",
+            "designValue": "[buyerID]",
+            "refField": "buyerID shopping_cart_detail",
+            "dataType": "reference",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "formatting": "Text",
+            "textTransform": "none"
+          },
+          "left": "35px",
+          "top": "5px",
+          "css class 2": "blueprint-defaults",
+          "css class 3": "blueprint-output-field",
+          "grid": "cartDetailGrid",
+          "column": "4"
+        },
+        {
+          "id": "OutputField3",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "partNumber",
+            "designValue": "[partNumber]",
+            "refField": "partNumber shopping_cart_detail",
+            "dataType": "reference",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "formatting": "Text",
+            "textTransform": "none"
+          },
+          "left": "15px",
+          "top": "5px",
+          "css class 2": "blueprint-defaults",
+          "css class 3": "blueprint-output-field",
+          "width": "125px",
+          "grid": "cartDetailGrid",
+          "column": "5"
+        },
+        {
+          "id": "OutputField4",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "PARTDE0001",
+            "longName": "partDescription",
+            "designValue": "[partDescription]",
+            "refField": "partDescription shopping_cart_detail",
+            "dataType": "reference",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "formatting": "Text",
+            "textTransform": "none"
+          },
+          "left": "10px",
+          "top": "5px",
+          "css class 2": "blueprint-defaults",
+          "css class 3": "blueprint-output-field",
+          "width": "245px",
+          "grid": "cartDetailGrid",
+          "column": "6"
+        },
+        {
+          "id": "OutputField5",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "supplier",
+            "designValue": "[supplier]",
+            "refField": "supplier shopping_cart_detail",
+            "dataType": "reference",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "formatting": "Text",
+            "textTransform": "none"
+          },
+          "left": "10px",
+          "top": "5px",
+          "css class 2": "blueprint-defaults",
+          "css class 3": "blueprint-output-field",
+          "width": "75px",
+          "grid": "cartDetailGrid",
+          "column": "11"
+        },
+        {
+          "id": "OutputField6",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "shipDate",
+            "refField": "shipDate shopping_cart_detail",
+            "dataType": "reference",
+            "formatting": "Date",
+            "dateFormat": "m/d/Y",
+            "locale": "en_US",
+            "designValue": "[shipDate]"
+          },
+          "left": "20px",
+          "top": "5px",
+          "css class 2": "blueprint-defaults",
+          "css class 3": "blueprint-output-field",
+          "width": "85px",
+          "text align": "center",
+          "grid": "cartDetailGrid",
+          "column": "9"
+        },
+        {
+          "id": "OutputField7",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "dueDate",
+            "refField": "dueDate shopping_cart_detail",
+            "dataType": "reference",
+            "formatting": "Date",
+            "dateFormat": "m/d/Y",
+            "locale": "en_US",
+            "designValue": "[dueDate]"
+          },
+          "left": "10px",
+          "top": "5px",
+          "css class 2": "blueprint-defaults",
+          "css class 3": "blueprint-output-field",
+          "width": "85px",
+          "text align": "center",
+          "grid": "cartDetailGrid",
+          "column": "10"
+        },
+        {
+          "id": "OutputField8",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "orderQty",
+            "designValue": "[orderQty]",
+            "refField": "orderQty shopping_cart_detail",
+            "dataType": "reference",
+            "numSep": "false",
+            "zeroBalance": "false",
+            "numBlankFill": "false",
+            "zeroFill": "false",
+            "noExtraSpaces": "false",
+            "curSym": "",
+            "formatting": "Number",
+            "negNum": "-999.00",
+            "units": ""
+          },
+          "left": "-45px",
+          "top": "5px",
+          "css class 2": "blueprint-defaults",
+          "css class 3": "blueprint-output-field",
+          "text align": "right",
+          "width": "125px",
+          "grid": "cartDetailGrid",
+          "column": "7"
+        },
+        {
+          "id": "selectCkBtn",
+          "field type": "checkbox",
+          "left": "25px",
+          "top": "5px",
+          "cursor": "pointer",
+          "checked value": "1",
+          "unchecked value": "0",
+          "value": {
+            "fieldName": "select",
+            "dataLength": "1",
+            "customTrue": "",
+            "customFalse": "",
+            "dataType": "char",
+            "formatting": "Indicator",
+            "indFormat": "1 / 0",
+            "designValue": "[select]"
+          },
+          "onclick": "var gridID = getObj(\"cartDetailGrid\");\nvar rowSelected = false;\n \nfor (var r=1; r<=gridID.grid.getRecordCount(); r++) {\n  if (gridID.grid.getDataValue(r, \"select\") == '1') {\n    applyProperty(\"clearBtn\", \"disabled\",\"false\");\n    applyProperty(\"addToCartBtn\", \"disabled\", \"false\");\n    applyProperty(\"orderNowBtn\", \"disabled\", \"false\");\n    //pui.set(\"status\", r,);\n    rowSelected = true;\n    break; \n  }\n};\n\nif (!rowSelected) {\n  applyProperty(\"clearBtn\", \"disabled\",\"true\");\n  applyProperty(\"addToCartBtn\", \"disabled\", \"true\");\n  applyProperty(\"orderNowBtn\", \"disabled\", \"true\");\n};\n",
+          "grid": "cartDetailGrid",
+          "column": "1"
+        },
+        {
+          "id": "detailId",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "id",
+            "designValue": "[id]",
+            "refField": "id shopping_cart_detail",
+            "dataType": "reference",
+            "numSep": "false",
+            "zeroBalance": "false",
+            "numBlankFill": "false",
+            "zeroFill": "false",
+            "noExtraSpaces": "false",
+            "curSym": "",
+            "formatting": "Number",
+            "negNum": "-999.00",
+            "units": ""
+          },
+          "left": "60px",
+          "top": "5px",
+          "css class 2": "blueprint-defaults",
+          "css class 3": "blueprint-output-field",
+          "visibility": "hidden",
+          "width": "25px",
+          "grid": "cartDetailGrid",
+          "column": "3"
+        },
+        {
+          "id": "extendedCost",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "extendedCost",
+            "dataLength": "9",
+            "decPos": "2",
+            "numSep": "false",
+            "zeroBalance": "false",
+            "numBlankFill": "false",
+            "zeroFill": "false",
+            "noExtraSpaces": "false",
+            "curSym": "",
+            "dataType": "zoned",
+            "formatting": "Number",
+            "negNum": "-999.00",
+            "units": "",
+            "designValue": "[extendedCost]"
+          },
+          "text align": "right",
+          "left": "-50px",
+          "top": "5px",
+          "width": "125px",
+          "css class 2": "blueprint-defaults",
+          "css class 3": "blueprint-output-field",
+          "grid": "cartDetailGrid",
+          "column": "8"
+        },
+        {
+          "id": "viewBtn",
+          "field type": "graphic button",
+          "left": "15px",
+          "top": "5px",
+          "width": "25px",
+          "icon position": "left",
+          "image source": "/profoundui/proddata/images/icons/view.png",
+          "font weight": "bold",
+          "cursor": "pointer",
+          "response": {
+            "fieldName": "viewBtn",
+            "customTrue": "",
+            "customFalse": "",
+            "dataType": "indicator",
+            "formatting": "Indicator",
+            "indFormat": "1 / 0"
+          },
+          "grid": "cartDetailGrid",
+          "column": "0"
+        },
+        {
+          "id": "editBtn",
+          "field type": "graphic button",
+          "left": "45px",
+          "top": "5px",
+          "width": "25px",
+          "icon position": "left",
+          "image source": "/profoundui/proddata/images/icons/change.png",
+          "font weight": "bold",
+          "cursor": "pointer",
+          "response": {
+            "fieldName": "editBtn",
+            "customTrue": "",
+            "customFalse": "",
+            "dataType": "indicator",
+            "formatting": "Indicator",
+            "indFormat": "1 / 0"
+          },
+          "grid": "cartDetailGrid",
+          "column": "0"
+        },
+        {
+          "id": "deleteBtn",
+          "field type": "graphic button",
+          "left": "75px",
+          "top": "5px",
+          "width": "25px",
+          "image source": "/profoundui/proddata/images/icons/delete.png",
+          "font weight": "bold",
+          "cursor": "pointer",
+          "response": {
+            "fieldName": "deleteBtn",
+            "customTrue": "",
+            "customFalse": "",
+            "dataType": "indicator",
+            "formatting": "Indicator",
+            "indFormat": "1 / 0"
+          },
+          "grid": "cartDetailGrid",
+          "column": "0"
+        },
+        {
+          "id": "shoppingCart",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "shoppingCart",
+            "dataLength": "50",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "varchar",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[shoppingCart]"
+          },
+          "left": "5px",
+          "top": "5px",
+          "width": "200px",
+          "grid": "cartDetailGrid",
+          "column": "2"
+        }
+      ]
+    },
+    {
+      "screen": {
+        "record format name": "confirmDelQueuedPart",
+        "show as window": "true"
+      },
+      "items": [
+        {
+          "id": "confirmWindow",
+          "field type": "layout",
+          "left": "510px",
+          "top": "60px",
+          "template": "css panel",
+          "header text": "Confirm Delete",
+          "header theme": "G - Red",
+          "body theme": "C - Gray",
+          "height": "290px",
+          "width": "605px",
+          "z index": "8",
+          "center horizontally": "true",
+          "center vertically": "true",
+          "header height": "50px"
+        },
+        {
+          "id": "Label1a",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Delete queued part?",
+          "left": "145px",
+          "top": "40px",
+          "width": "315px",
+          "font size": "20px",
+          "text align": "center",
+          "layout": "confirmWindow",
+          "container": "1"
+        },
+        {
+          "id": "Label2a",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Continue?",
+          "left": "220px",
+          "top": "105px",
+          "width": "150px",
+          "text align": "center",
+          "layout": "confirmWindow",
+          "container": "1"
+        },
+        {
+          "id": "yesBtn",
+          "field type": "css button",
+          "value": "Yes",
+          "left": "170px",
+          "top": "165px",
+          "width": "90px",
+          "theme": "F - Green",
+          "small button": "true",
+          "icon position": "left",
+          "icon": "check",
+          "onclick": {
+            "routine": "confirm window - yes button click",
+            "designValue": "confirm window - yes button click"
+          },
+          "layout": "confirmWindow",
+          "container": "1"
+        },
+        {
+          "id": "noBtn",
+          "field type": "css button",
+          "value": "No",
+          "left": "325px",
+          "top": "165px",
+          "width": "90px",
+          "theme": "G - Red",
+          "small button": "true",
+          "icon position": "left",
+          "icon": "delete",
+          "onclick": {
+            "routine": "confirm window - no button click",
+            "designValue": "confirm window - no button click"
+          },
+          "layout": "confirmWindow",
+          "container": "1"
+        }
+      ]
+    },
+    {
+      "screen": {
+        "record format name": "cartQueueDetailAdvSearch",
+        "show as window": "true",
+        "center window": "true",
+        "initial routine": {
+          "routine": "queued part adv search - screen initialization",
+          "designValue": "queued part adv search - screen initialization"
+        }
+      },
+      "items": [
+        {
+          "id": "Layout1",
+          "field type": "layout",
+          "left": "295px",
+          "top": "55px",
+          "template": "css panel",
+          "header text": "Advanced Search",
+          "header theme": "B - Blue",
+          "body theme": "C - Gray",
+          "height": "305px",
+          "width": "680px",
+          "z index": "8",
+          "center horizontally": "true"
+        },
+        {
+          "id": "FieldSet1",
+          "field type": "field set panel",
+          "value": "Global Selection",
+          "left": "60px",
+          "top": "40px",
+          "width": "555px",
+          "height": "140px",
+          "z index": "8",
+          "background color": "#CCFFFF",
+          "text align": "center",
+          "font size": "20px",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "backBtn",
+          "field type": "css button",
+          "value": "Back",
+          "theme": "B - Blue",
+          "icon position": "left",
+          "icon": "back",
+          "small button": "true",
+          "left": "70px",
+          "top": "210px",
+          "width": "95px",
+          "onclick": {
+            "routine": "back button click",
+            "designValue": "back button click"
+          },
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "searchBtn",
+          "field type": "css button",
+          "value": "Search",
+          "theme": "F - Green",
+          "small button": "true",
+          "left": "180px",
+          "top": "210px",
+          "width": "100px",
+          "onclick": {
+            "routine": "cart detail adv search",
+            "designValue": "cart detail adv search"
+          },
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "shoppingCartID",
+          "field type": "select box",
+          "value": {
+            "fieldName": "shoppingCartID",
+            "refField": "shoppingCartID shopping_cart_detail",
+            "refFieldConnection": "workspace",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "reference",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[shoppingCartID]"
+          },
+          "choices": "Option 1,Option 2",
+          "database connection": "workspace",
+          "choices database file": "shopping_cart_header",
+          "choice options field": "description",
+          "choice values field": "cartID",
+          "blank option": "true",
+          "order by": "cartID",
+          "left": "250px",
+          "top": "97px",
+          "width": "300px",
+          "parent field set": "FieldSet1",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "Label17",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Shopping Cart:",
+          "color": "#0099FF",
+          "left": "75px",
+          "top": "100px",
+          "width": "150px",
+          "parent field set": "FieldSet1",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "clearBtn",
+          "field type": "styled button",
+          "value": "Clear",
+          "left": "515px",
+          "top": "215px",
+          "width": "100px",
+          "height": "23px",
+          "button style": "Glass",
+          "onclick": {
+            "routine": "cart detail advance search clear",
+            "designValue": "cart detail advance search clear"
+          },
+          "layout": "Layout1",
+          "container": "1"
+        }
+      ]
+    },
+    {
+      "screen": {
+        "record format name": "createCart",
+        "initial routine": {
+          "routine": "initialize create cart screen fields",
+          "designValue": "initialize create cart screen fields"
+        },
+        "overlay screens": "true",
+        "show as window": "true"
+      },
+      "items": [
+        {
+          "id": "Layout1",
+          "field type": "layout",
+          "left": "285px",
+          "top": "50px",
+          "template": "css panel",
+          "header text": "Create Shopping Cart",
+          "header theme": "B - Blue",
+          "body theme": "C - Gray",
+          "height": "260px",
+          "width": "555px",
+          "z index": "8",
+          "center horizontally": "true",
+          "center vertically": "true"
+        },
+        {
+          "id": "Label1",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Description:",
+          "left": "20px",
+          "top": "50px",
+          "width": "150px",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "TextBox1",
+          "field type": "textbox",
+          "css class": "input",
+          "value": {
+            "fieldName": "description",
+            "dataLength": "35",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "varchar",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[description]"
+          },
+          "left": "185px",
+          "top": "50px",
+          "width": "355px",
+          "required": "true",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "cancelBtn",
+          "field type": "css button",
+          "value": "Cancel",
+          "theme": "G - Red",
+          "small button": "true",
+          "left": "270px",
+          "top": "120px",
+          "width": "90px",
+          "onclick": {
+            "routine": "cancel button click 2",
+            "designValue": "cancel button click 2"
+          },
+          "bypass validation": "true",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "addBtn",
+          "field type": "css button",
+          "value": "Add",
+          "left": "140px",
+          "top": "120px",
+          "width": "90px",
+          "theme": "F - Green",
+          "small button": "true",
+          "onclick": {
+            "routine": "insert new cart row",
+            "designValue": "insert new cart row"
+          },
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "type",
+          "field type": "textbox",
+          "css class": "input",
+          "value": {
+            "fieldName": "type",
+            "dataLength": "1",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "varchar",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[type]"
+          },
+          "left": "405px",
+          "top": "105px",
+          "visibility": "hidden",
+          "width": "25px",
+          "disabled": "true",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "user",
+          "field type": "textbox",
+          "css class": "input",
+          "value": {
+            "fieldName": "user",
+            "dataLength": "10",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "varchar",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[user]"
+          },
+          "left": "440px",
+          "top": "105px",
+          "width": "25px",
+          "visibility": "hidden",
+          "disabled": "true",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "buyerCode",
+          "field type": "textbox",
+          "css class": "input",
+          "value": {
+            "fieldName": "buyerCode",
+            "dataLength": "2",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "varchar",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[buyerCode]"
+          },
+          "left": "445px",
+          "top": "125px",
+          "width": "25px",
+          "visibility": "hidden",
+          "disabled": "true",
+          "layout": "Layout1",
+          "container": "1"
+        },
+        {
+          "id": "plant",
+          "field type": "textbox",
+          "css class": "input",
+          "value": {
+            "fieldName": "plant",
+            "dataLength": "2",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "varchar",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[plant]"
+          },
+          "disabled": "true",
+          "left": "405px",
+          "top": "125px",
+          "width": "25px",
+          "visibility": "hidden",
+          "layout": "Layout1",
+          "container": "1"
+        }
+      ]
+    },
+    {
+      "screen": {
+        "record format name": "cartMain",
+        "center window": "true",
+        "initial routine": {
+          "routine": "initialize shopping cart",
+          "designValue": "initialize shopping cart"
+        },
+        "show as window": "true"
+      },
+      "items": [
+        {
+          "id": "main",
+          "field type": "layout",
+          "left": "365px",
+          "top": "10px",
+          "template": "css panel",
+          "header text": "Shopping Carts",
+          "header theme": "B - Blue",
+          "body theme": "C - Gray",
+          "height": "830px",
+          "width": "950px",
+          "z index": "8"
+        },
+        {
+          "id": "Grid1",
+          "field type": "grid",
+          "css class": "crystal-grid",
+          "left": "60px",
+          "top": "170px",
+          "number of rows": "15",
+          "number of columns": "8",
+          "column widths": "75,75,133,139,89,149,75,111",
+          "column headings": "Actions,Selection,Cart ID,Description,Plant,Buyer,No of Line Items,Total Cost",
+          "header height": "26",
+          "row height": "37",
+          "height": "544px",
+          "width": "847px",
+          "movable columns": "true",
+          "persist state": "true",
+          "find option": "true",
+          "filter option": "true",
+          "hide columns option": "true",
+          "reset option": "true",
+          "export option": "true",
+          "export only visible columns": "true",
+          "record format name": "cartGrid",
+          "sortable columns": "true",
+          "resizable columns": "true",
+          "xlsx export": "true",
+          "export file name": "shopping carts",
+          "export with headings": "true",
+          "show paging controls": "true",
+          "show page number": "true",
+          "layout": "main",
+          "container": "1"
+        },
+        {
+          "id": "createListBtn",
+          "field type": "css button",
+          "value": "Create",
+          "left": "165px",
+          "top": "60px",
+          "width": "85px",
+          "theme": "F - Green",
+          "small button": "true",
+          "onclick": {
+            "routine": "show create cart",
+            "designValue": "show create cart"
+          },
+          "height": "31px",
+          "layout": "main",
+          "container": "1"
+        },
+        {
+          "id": "backBtn",
+          "field type": "css button",
+          "value": "Back",
+          "left": "60px",
+          "top": "60px",
+          "width": "85px",
+          "theme": "B - Blue",
+          "small button": "true",
+          "icon position": "left",
+          "icon": "back",
+          "onclick": {
+            "routine": "back button click",
+            "designValue": "back button click"
+          },
+          "layout": "main",
+          "container": "1"
+        },
+        {
+          "id": "Label3",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Plant:",
+          "color": "#0099FF",
+          "left": "60px",
+          "top": "15px",
+          "width": "40px",
+          "layout": "main",
+          "container": "1"
+        },
+        {
+          "id": "plant_copy",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "plant",
+            "dataLength": "2",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "varchar",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[plant]"
+          },
+          "left": "115px",
+          "top": "15px",
+          "width": "25px",
+          "layout": "main",
+          "container": "1"
+        },
+        {
+          "id": "Label1_copy",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Buyer:",
+          "color": "#0099FF",
+          "left": "165px",
+          "top": "15px",
+          "width": "50px",
+          "layout": "main",
+          "container": "1"
+        },
+        {
+          "id": "buyerCode_copy",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "buyerID",
+            "refField": "buyerID shopping_cart_detail",
+            "refFieldConnection": "workspace",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "reference",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[buyerID]"
+          },
+          "left": "230px",
+          "top": "15px",
+          "width": "30px",
+          "layout": "main",
+          "container": "1"
+        },
+        {
+          "id": "buyerCodeName",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "buyerName",
+            "dataLength": "35",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "varchar",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[buyerName]"
+          },
+          "left": "270px",
+          "top": "15px",
+          "width": "235px",
+          "layout": "main",
+          "container": "1"
+        },
+        {
+          "id": "orderNowBtn",
+          "field type": "graphic button",
+          "value": "Order",
+          "color": "#70b859",
+          "font weight": "bold",
+          "icon position": "left",
+          "image source": "/profoundui/proddata/images/icons/add.png",
+          "left": "65px",
+          "top": "120px",
+          "width": "105px",
+          "onclick": {
+            "routine": "order now button click",
+            "designValue": "order now button click"
+          },
+          "height": "30px",
+          "layout": "main",
+          "container": "1"
+        },
+        {
+          "id": "shoppingCartIcon",
+          "field type": "icon",
+          "color": "#0033FF",
+          "icon": "material:shopping_cart",
+          "left": "850px",
+          "top": "25px",
+          "height": "50px",
+          "width": "55px",
+          "cursor": "pointer",
+          "onclick": {
+            "routine": "show cart queue detail",
+            "designValue": "show cart queue detail"
+          },
+          "layout": "main",
+          "container": "1"
+        },
+        {
+          "id": "Label1_copy2",
+          "field type": "output field",
+          "css class": "label",
+          "value": "To create purchase order(s), select cart and click order button.",
+          "font style": "italic",
+          "text align": "left",
+          "left": "55px",
+          "top": "750px",
+          "width": "435px",
+          "layout": "main",
+          "container": "1"
+        },
+        {
+          "id": "description",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "description",
+            "dataLength": "35",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "varchar",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[description]"
+          },
+          "left": "10px",
+          "top": "10px",
+          "width": "195px",
+          "grid": "Grid1",
+          "column": "3"
+        },
+        {
+          "id": "plant",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "plant",
+            "dataLength": "2",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "varchar",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[plant]"
+          },
+          "left": "25px",
+          "top": "10px",
+          "width": "25px",
+          "grid": "Grid1",
+          "column": "4"
+        },
+        {
+          "id": "buyerCode",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "buyerCode",
+            "dataLength": "5",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "varchar",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[buyerCode]"
+          },
+          "left": "15px",
+          "top": "10px",
+          "width": "110px",
+          "grid": "Grid1",
+          "column": "5"
+        },
+        {
+          "id": "delBtn",
+          "field type": "graphic button",
+          "left": "20px",
+          "top": "5px",
+          "width": "25px",
+          "icon position": "left",
+          "image source": "/profoundui/proddata/images/icons/delete.png",
+          "color": "#a21111",
+          "font weight": "bold",
+          "cursor": "pointer",
+          "grid": "Grid1",
+          "column": "0"
+        },
+        {
+          "id": "cartID",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "cartID",
+            "dataLength": "9",
+            "decPos": "0",
+            "numSep": "false",
+            "zeroBalance": "false",
+            "numBlankFill": "false",
+            "zeroFill": "false",
+            "noExtraSpaces": "false",
+            "curSym": "",
+            "dataType": "zoned",
+            "formatting": "Number",
+            "negNum": "999.00",
+            "units": "",
+            "designValue": "[cartID]"
+          },
+          "left": "10px",
+          "top": "10px",
+          "width": "75px",
+          "color": "#0000FF",
+          "text decoration": "underline",
+          "cursor": "pointer",
+          "onclick": {
+            "routine": "show cart queue detail by cartID",
+            "designValue": "show cart queue detail by cartID"
+          },
+          "grid": "Grid1",
+          "column": "2"
+        },
+        {
+          "id": "OutputField1",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "numOfPos",
+            "dataLength": "3",
+            "decPos": "0",
+            "numSep": "false",
+            "zeroBalance": "false",
+            "numBlankFill": "false",
+            "zeroFill": "false",
+            "noExtraSpaces": "false",
+            "curSym": "",
+            "dataType": "zoned",
+            "formatting": "Number",
+            "negNum": "-999.00",
+            "units": "",
+            "designValue": "[numOfPos]"
+          },
+          "left": "25px",
+          "top": "10px",
+          "text align": "right",
+          "grid": "Grid1",
+          "column": "6"
+        },
+        {
+          "id": "OutputField2",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "totalCost",
+            "dataLength": "9",
+            "decPos": "2",
+            "numSep": "true",
+            "zeroBalance": "true",
+            "numBlankFill": "false",
+            "zeroFill": "false",
+            "noExtraSpaces": "false",
+            "curSym": "",
+            "dataType": "zoned",
+            "formatting": "Number",
+            "negNum": "-999.00",
+            "units": "",
+            "designValue": "[totalCost]"
+          },
+          "left": "10px",
+          "top": "10px",
+          "width": "80px",
+          "text align": "right",
+          "grid": "Grid1",
+          "column": "7"
+        },
+        {
+          "id": "selCart",
+          "field type": "checkbox",
+          "checked value": "1",
+          "unchecked value": "0",
+          "left": "25px",
+          "top": "10px",
+          "cursor": "pointer",
+          "onclick": {
+            "routine": "calc total cost",
+            "designValue": "calc total cost"
+          },
+          "grid": "Grid1",
+          "column": "1"
+        }
+      ]
+    },
+    {
+      "screen": {
+        "record format name": "cartSel",
+        "center window": "true",
+        "show as window": "true",
+        "initial routine": {
+          "routine": "initialize shopping cart select",
+          "designValue": "initialize shopping cart select"
+        }
+      },
+      "items": [
+        {
+          "id": "CenteringLayout",
+          "field type": "layout",
+          "left": "calc(50% - 450px)",
+          "top": "0px",
+          "template": "simple container",
+          "height": "750px",
+          "width": "765px",
+          "center horizontally": "true",
+          "locked in place": "true",
+          "center vertically": "true"
+        },
+        {
+          "id": "main",
+          "field type": "panel",
+          "value": "Assign Shopping Cart",
+          "left": "-20px",
+          "top": "5px",
+          "width": "755px",
+          "height": "715px",
+          "panel style": "Sapphire",
+          "z index": "8",
+          "layout": "CenteringLayout",
+          "container": "1"
+        },
+        {
+          "id": "Grid1",
+          "field type": "grid",
+          "css class": "crystal-grid",
+          "left": "25px",
+          "top": "130px",
+          "number of rows": "15",
+          "number of columns": "6",
+          "column widths": "110,211,61,89,79,125",
+          "column headings": "Cart ID,Description,Plant,Buyer,No of Line Items,Total Cost,Actions",
+          "header height": "26",
+          "row height": "37",
+          "height": "544px",
+          "width": "676px",
+          "movable columns": "true",
+          "persist state": "true",
+          "find option": "true",
+          "filter option": "true",
+          "hide columns option": "true",
+          "reset option": "true",
+          "record format name": "cartSelGrid",
+          "sortable columns": "true",
+          "resizable columns": "true",
+          "show paging controls": "true",
+          "show page number": "true",
+          "row selection": "single",
+          "selection field": {
+            "fieldName": "rowSelected",
+            "customTrue": "",
+            "customFalse": "",
+            "dataType": "indicator",
+            "formatting": "Indicator",
+            "indFormat": "1 / 0"
+          },
+          "selection value": "1",
+          "layout": "CenteringLayout",
+          "container": "1"
+        },
+        {
+          "id": "backBtn",
+          "field type": "css button",
+          "value": "Back",
+          "left": "25px",
+          "top": "85px",
+          "width": "90px",
+          "theme": "B - Blue",
+          "small button": "true",
+          "icon position": "left",
+          "icon": "back",
+          "onclick": {
+            "routine": "back button click",
+            "designValue": "back button click"
+          },
+          "height": "31px",
+          "layout": "CenteringLayout",
+          "container": "1"
+        },
+        {
+          "id": "Label3",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Plant:",
+          "color": "#0099FF",
+          "left": "25px",
+          "top": "40px",
+          "width": "40px",
+          "layout": "CenteringLayout",
+          "container": "1"
+        },
+        {
+          "id": "plant_copy",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "plant",
+            "dataLength": "2",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "varchar",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[plant]"
+          },
+          "left": "80px",
+          "top": "40px",
+          "width": "25px",
+          "layout": "CenteringLayout",
+          "container": "1"
+        },
+        {
+          "id": "Label1_copy",
+          "field type": "output field",
+          "css class": "label",
+          "value": "Buyer:",
+          "color": "#0099FF",
+          "left": "130px",
+          "top": "40px",
+          "width": "50px",
+          "layout": "CenteringLayout",
+          "container": "1"
+        },
+        {
+          "id": "buyerCode_copy",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "buyerID",
+            "refField": "buyerID shopping_cart_detail",
+            "refFieldConnection": "workspace",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "reference",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[buyerID]"
+          },
+          "left": "195px",
+          "top": "40px",
+          "width": "30px",
+          "layout": "CenteringLayout",
+          "container": "1"
+        },
+        {
+          "id": "buyerCodeName",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "buyerName",
+            "dataLength": "35",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "varchar",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[buyerName]"
+          },
+          "left": "235px",
+          "top": "40px",
+          "width": "235px",
+          "layout": "CenteringLayout",
+          "container": "1"
+        },
+        {
+          "id": "selectBtn",
+          "field type": "css button",
+          "value": "Select",
+          "theme": "F - Green",
+          "icon": "back",
+          "small button": "true",
+          "left": "145px",
+          "top": "85px",
+          "height": "31px",
+          "width": "90px",
+          "onclick": {
+            "routine": "cart selection",
+            "designValue": "cart selection"
+          },
+          "layout": "CenteringLayout",
+          "container": "1"
+        },
+        {
+          "id": "selectedIDs",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "selectedIDs",
+            "dataLength": "100",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "varchar",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[selectedIDs]"
+          },
+          "left": "350px",
+          "top": "105px",
+          "visibility": "hidden",
+          "layout": "CenteringLayout",
+          "container": "1"
+        },
+        {
+          "id": "description",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "description",
+            "dataLength": "35",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "varchar",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[description]"
+          },
+          "left": "10px",
+          "top": "10px",
+          "width": "195px",
+          "grid": "Grid1",
+          "column": "1"
+        },
+        {
+          "id": "plant",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "plant",
+            "dataLength": "2",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "varchar",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[plant]"
+          },
+          "left": "15px",
+          "top": "10px",
+          "width": "25px",
+          "grid": "Grid1",
+          "column": "2"
+        },
+        {
+          "id": "buyerCode",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "buyerCode",
+            "dataLength": "5",
+            "trimLeading": "false",
+            "trimTrailing": "true",
+            "blankFill": "false",
+            "rjZeroFill": "false",
+            "dataType": "varchar",
+            "formatting": "Text",
+            "textTransform": "none",
+            "designValue": "[buyerCode]"
+          },
+          "left": "5px",
+          "top": "10px",
+          "width": "110px",
+          "grid": "Grid1",
+          "column": "3"
+        },
+        {
+          "id": "cartID",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "cartID",
+            "dataLength": "9",
+            "decPos": "0",
+            "numSep": "false",
+            "zeroBalance": "false",
+            "numBlankFill": "false",
+            "zeroFill": "false",
+            "noExtraSpaces": "false",
+            "curSym": "",
+            "dataType": "zoned",
+            "formatting": "Number",
+            "negNum": "999.00",
+            "units": "",
+            "designValue": "[cartID]"
+          },
+          "left": "25px",
+          "top": "10px",
+          "width": "105px",
+          "text decoration": "none",
+          "cursor": "pointer",
+          "height": "15px",
+          "grid": "Grid1",
+          "column": "0"
+        },
+        {
+          "id": "OutputField1",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "numOfPos",
+            "dataLength": "3",
+            "decPos": "0",
+            "numSep": "false",
+            "zeroBalance": "false",
+            "numBlankFill": "false",
+            "zeroFill": "false",
+            "noExtraSpaces": "false",
+            "curSym": "",
+            "dataType": "zoned",
+            "formatting": "Number",
+            "negNum": "-999.00",
+            "units": "",
+            "designValue": "[numOfPos]"
+          },
+          "left": "5px",
+          "top": "10px",
+          "text align": "right",
+          "grid": "Grid1",
+          "column": "4"
+        },
+        {
+          "id": "OutputField2",
+          "field type": "output field",
+          "css class": "outputField",
+          "value": {
+            "fieldName": "totalCost",
+            "dataLength": "9",
+            "decPos": "2",
+            "numSep": "true",
+            "zeroBalance": "true",
+            "numBlankFill": "false",
+            "zeroFill": "false",
+            "noExtraSpaces": "false",
+            "curSym": "",
+            "dataType": "zoned",
+            "formatting": "Number",
+            "negNum": "-999.00",
+            "units": "",
+            "designValue": "[totalCost]"
+          },
+          "left": "20px",
+          "top": "10px",
+          "width": "80px",
+          "text align": "right",
+          "grid": "Grid1",
+          "column": "5"
+        }
+      ]
+    }
+  ],
+  "keywords": [],
+  "long name aliases": true
+}
