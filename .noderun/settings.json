@@ -7,9 +7,10 @@
   "routes": {},
   "app start": "app.json",
   "template dir": "blank-page",
+  "idx": 0,
+  "showIBMiParmDefn": false,
   "current git repository": "",
   "git repositories": [
     ""
-  ],
-  "idx": 0
+  ]
 }
